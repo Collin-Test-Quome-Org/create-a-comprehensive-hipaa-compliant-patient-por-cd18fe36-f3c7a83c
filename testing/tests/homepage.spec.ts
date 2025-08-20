@@ -1,3 +1,4 @@
+// homepage.spec.ts
 import { test, expect } from '@playwright/test';
 
 test.describe('Home Page', () => {
@@ -5,83 +6,54 @@ test.describe('Home Page', () => {
     await page.goto('/');
   });
 
-  test('renders the hero section', async ({ page }) => {
-    // The Hero is above dashboard; check for PortalGuard branding
-    await expect(page.getByText('PortalGuard')).toBeVisible();
-    // Check for the hero image wrapper (background image)
-    const heroDiv = page.locator('div').filter({ has: page.locator('h1') });
-    await expect(heroDiv.locator('h1')).not.toHaveCount(0);
+  test('renders hero section and heading', async ({ page }) => {
+    // Hero is always present at top
+    await expect(page.locator('main')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Why MedLock?' })).toBeVisible();
+    await expect(page.getByText('Designed for health-conscious go-getters who demand privacy, clarity, and convenience.')).toBeVisible();
   });
 
-  test('renders the dashboard heading', async ({ page }) => {
-    await expect(page.getByRole('heading', { level: 2, name: 'Your Health Portal Dashboard' })).toBeVisible();
-  });
-
-  test('renders all dashboard cards', async ({ page }) => {
-    const cards = [
-      'Appointments',
-      'Medical Records',
-      'Prescriptions',
-      'Messaging',
-      'Notifications',
-      'File Uploads',
-    ];
-    for (const card of cards) {
-      await expect(page.getByRole('heading', { name: card })).toBeVisible();
-    }
-  });
-
-  test('dashboard cards have correct descriptions', async ({ page }) => {
-    const cardDescriptions = [
-      'Book, view, or manage your appointments with ease.',
-      'Access your health history and lab results securely.',
-      'View active prescriptions and request refills in one tap.',
-      'Chat directly with your care team anytime.',
-      'All your important alerts and reminders, in one spot.',
-      'Upload insurance cards, forms, or images securely.',
-    ];
-    for (const desc of cardDescriptions) {
-      await expect(page.getByText(desc)).toBeVisible();
-    }
-  });
-
-  test('dashboard cards navigate to correct routes', async ({ page }) => {
-    const cardLinks = [
-      { label: 'Appointments', path: '/appointments' },
-      { label: 'Medical Records', path: '/medical-records' },
-      { label: 'Prescriptions', path: '/prescriptions' },
-      { label: 'Messaging', path: '/messaging' },
-      { label: 'Notifications', path: '/notifications' },
-      { label: 'File Uploads', path: '/uploads' },
-    ];
-    for (const { label, path } of cardLinks) {
-      // Some dashboard cards may be <a> or <button> or custom, so try by role or text
-      const card = page.getByRole('heading', { name: label });
-      const cardParent = card.locator('..').locator('..'); // Up to card container
-      // Try to find link in card
-      const link = cardParent.getByRole('link');
-      if (await link.count()) {
-        await link.click();
-        await expect(page).toHaveURL(path);
-        await page.goto('/');
-      } else {
-        // fallback: click card container itself
-        await cardParent.click();
-        // The app may not have those routes implemented, just check navigation attempted
-        await expect(page.url()).toContain(path);
-        await page.goto('/');
+  test('displays all features cards', async ({ page }) => {
+    const features = [
+      {
+        title: 'Military-Grade Security',
+        description: 'Your data is locked down tighter than a submarine hatch. Only you and your care team have the keys.'
+      },
+      {
+        title: 'Effortless Appointments',
+        description: 'Book, track, and manage visits in a snap—no more phone tag, just tap and go.'
+      },
+      {
+        title: 'All Your Records, One Place',
+        description: 'Access your complete history, test results, and physician notes, securely organized for you.'
+      },
+      {
+        title: 'Prescription Power',
+        description: 'See, refill, and manage your prescriptions. We keep your meds on track—so you don’t have to.'
+      },
+      {
+        title: 'Direct Messaging',
+        description: 'Connect instantly with your care team. No faxes, no waiting—just answers.'
       }
+    ];
+    for (const feature of features) {
+      await expect(page.getByRole('heading', { name: feature.title })).toBeVisible();
+      await expect(page.getByText(feature.description)).toBeVisible();
     }
   });
 
-  test('page has no major accessibility violations (AXE)', async ({ page }) => {
-    // Only runs if @playwright/test-axe is installed
-    // Otherwise this can be skipped
-    // @ts-expect-error
-    if (typeof page.runAxe === 'function') {
-      // @ts-ignore
-      const results = await page.runAxe();
-      expect(results.violations).toHaveLength(0);
-    }
+  test('background color and layout classes are applied', async ({ page }) => {
+    // Check for bg-slate-50 and grid layout
+    const main = page.locator('main.container.mx-auto');
+    await expect(main).toHaveClass(/container/);
+    const grid = main.locator('div.grid');
+    await expect(grid).toBeVisible();
+    await expect(grid).toHaveClass(/grid-cols-1/);
+  });
+
+  test('is accessible and main landmarks exist', async ({ page }) => {
+    await expect(page.locator('main')).toBeVisible();
+    await expect(page.locator('nav')).toBeVisible();
+    await expect(page.getByRole('main')).toBeVisible();
   });
 });

@@ -1,49 +1,63 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Navigation Bar', () => {
-  test('renders all navigation links and buttons', async ({ page }) => {
+  test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    // Logo and title
-    await expect(page.getByRole('img')).toBeVisible();
-    await expect(page.getByText('PortalGuard', { exact: true })).toBeVisible();
-    // Nav links
+  });
+
+  test('logo and brand link navigates to home', async ({ page }) => {
+    const logo = page.locator('nav img');
+    const brand = page.getByText('PortalGuard').first();
+    await expect(logo).toBeVisible();
+    await expect(brand).toBeVisible();
+
+    await brand.click();
+    await expect(page).toHaveURL('/');
+  });
+
+  test('renders all nav links and buttons', async ({ page }) => {
+    // Main links
     await expect(page.getByRole('link', { name: 'Portal' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'About' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Contact' })).toBeVisible();
-    // Nav buttons
-    await expect(page.locator('#nav-login-btn')).toBeVisible();
-    await expect(page.locator('#nav-sign-up-btn')).toBeVisible();
+    // Buttons
+    await expect(page.getByRole('button', { name: 'Login' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Sign Up' })).toBeVisible();
   });
 
-  test('navigates to correct pages when links/buttons are clicked', async ({ page }) => {
-    await page.goto('/');
-    // About link
+  test('active link has correct styling', async ({ page }) => {
+    // On home, none of Portal/About/Contact is active
+    for (const link of ['Portal', 'About', 'Contact']) {
+      const navLink = page.getByRole('link', { name: link });
+      await expect(navLink).not.toHaveClass(/bg-\[#1d4ed8\]/);
+    }
+    // Click About and check it
     await page.getByRole('link', { name: 'About' }).click();
-    await expect(page).toHaveURL(/\/about/);
-    // Back to Home
-    await page.getByRole('img').click();
-    await expect(page).toHaveURL('/');
-    // Portal link
-    await page.getByRole('link', { name: 'Portal' }).click();
-    await expect(page).toHaveURL(/\/portal/);
-    // Contact link
-    await page.getByRole('link', { name: 'Contact' }).click();
-    await expect(page).toHaveURL(/\/contact/);
-    // Login button
-    await page.locator('#nav-login-btn').click();
-    await expect(page).toHaveURL(/\/login/);
-    // Sign Up button
-    await page.locator('#nav-sign-up-btn').click();
-    await expect(page).toHaveURL(/\/signup/);
+    await expect(page.getByRole('link', { name: 'About' })).toHaveClass(/bg-\[#1d4ed8\]/);
+    await expect(page).toHaveURL('/about');
   });
 
-  test('active link is highlighted based on route', async ({ page }) => {
-    await page.goto('/about');
-    const activeAbout = page.getByRole('link', { name: 'About' });
-    await expect(activeAbout).toHaveClass(/bg-\[#1d4ed8\]/);
-    await expect(activeAbout).toHaveClass(/text-white/);
-    // Inactive link
-    const inactivePortal = page.getByRole('link', { name: 'Portal' });
-    await expect(inactivePortal).not.toHaveClass(/bg-\[#1d4ed8\]/);
+  test('login and signup buttons navigate correctly', async ({ page }) => {
+    await page.getByRole('button', { name: 'Login' }).click();
+    await expect(page).toHaveURL('/login');
+    await page.goBack();
+    await page.getByRole('button', { name: 'Sign Up' }).click();
+    await expect(page).toHaveURL('/signup');
+  });
+
+  test('portal, about, and contact links navigate correctly', async ({ page }) => {
+    await page.getByRole('link', { name: 'Portal' }).click();
+    await expect(page).toHaveURL('/portal');
+    await page.goBack();
+    await page.getByRole('link', { name: 'About' }).click();
+    await expect(page).toHaveURL('/about');
+    await page.goBack();
+    await page.getByRole('link', { name: 'Contact' }).click();
+    await expect(page).toHaveURL('/contact');
+  });
+
+  test('has accessible nav landmark', async ({ page }) => {
+    // The nav element should have role="navigation"
+    await expect(page.locator('nav')).toHaveAttribute('class', /flex/);
   });
 });

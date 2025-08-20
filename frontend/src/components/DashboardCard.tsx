@@ -1,26 +1,45 @@
-import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { CalendarDays, FileText, ClipboardList, MessageCircle, Bell, UploadCloud } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Calendar, FileText, Capsule, MessageCircle, Bell } from 'lucide-react'
 
-const iconMap: Record<string, React.ReactNode> = {
-  appointments: <CalendarDays className="w-7 h-7 text-blue-600" />, // calendar
-  records: <FileText className="w-7 h-7 text-blue-600" />, // file
-  prescriptions: <ClipboardList className="w-7 h-7 text-blue-600" />, // clipboard
-  messaging: <MessageCircle className="w-7 h-7 text-blue-600" />, // chat
-  notifications: <Bell className="w-7 h-7 text-blue-600" />, // bell
-  uploads: <UploadCloud className="w-7 h-7 text-blue-600" />, // upload
-};
+const icons = {
+  appointments: Calendar,
+  records: FileText,
+  prescriptions: Capsule,
+  messaging: MessageCircle,
+  notifications: Bell,
+}
 
-export function DashboardCard({ title, description, to, icon }: { title: string; description: string; to: string; icon: string }) {
+export function DashboardCard({
+  title,
+  description,
+  to,
+  icon,
+  color,
+}: {
+  title: string
+  description: string
+  to: string
+  icon: keyof typeof icons
+  color?: string
+}) {
+  const Icon = icons[icon]
   return (
-    <div className="rounded-xl shadow-md bg-white border border-blue-100 hover:shadow-lg transition-shadow flex flex-col items-center text-center px-8 py-10">
-      <div className="mb-4">{iconMap[icon]}</div>
-      <h3 className="text-xl font-bold text-blue-900 mb-2 font-['Roboto']">{title}</h3>
-      <p className="text-gray-600 mb-6 text-base font-['Roboto']">{description}</p>
-      <Link to={to} className="w-full">
-        <Button id={`dashboard-${icon}-btn`} variant="outline" className="w-full border-blue-600 text-blue-900 hover:bg-blue-50">Go to {title}</Button>
+    <motion.div whileHover={{ y: -6, scale: 1.035 }}>
+      <Link to={to} className="block h-full">
+        <Card className="h-full bg-white shadow-lg hover:shadow-xl transition-shadow">
+          <CardHeader className="flex flex-row items-center gap-3 pb-2">
+            <div className={`rounded-full p-2 bg-${color || 'blue'}-100 text-${color || 'blue'}-700`}>
+              <Icon size={28} />
+            </div>
+            <CardTitle className="text-lg font-bold" style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700 }}>{title}</CardTitle>
+          </CardHeader>
+          <CardContent className="text-slate-600" style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400 }}>
+            {description}
+          </CardContent>
+        </Card>
       </Link>
-    </div>
-  );
+    </motion.div>
+  )
 }

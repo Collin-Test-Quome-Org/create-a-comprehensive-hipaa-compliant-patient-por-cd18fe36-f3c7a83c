@@ -1,132 +1,73 @@
-// FileUploadsPage.tsx
-import { useState, useRef } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { UploadCloud, FileText, Trash2 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Upload, FileText } from 'lucide-react'
+import { useRef, useState } from 'react'
 
-const initialFiles = [
-  {
-    name: 'LabReport-June2024.pdf',
-    uploaded: '2024-06-15',
-    url: '#',
-  },
-  {
-    name: 'InsuranceCard.jpg',
-    uploaded: '2024-05-03',
-    url: '#',
-  },
-];
+const mockDocs = [
+  { name: 'Bloodwork_Results.pdf', uploaded: '2024-03-01' },
+  { name: 'Xray_Image_Chest.png', uploaded: '2024-02-18' },
+]
 
 export function FileUploadsPage() {
-  const [files, setFiles] = useState(initialFiles);
-  const [selected, setSelected] = useState<File | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [uploading, setUploading] = useState(false);
+  const [docs, setDocs] = useState(mockDocs)
+  const [file, setFile] = useState<File | null>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+  const [uploading, setUploading] = useState(false)
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    if (e.target.files && e.target.files[0]) {
-      setSelected(e.target.files[0]);
+    const f = e.target.files?.[0]
+    setFile(f || null)
+  }
+  function handleUpload(e: React.FormEvent) {
+    e.preventDefault()
+    if (file) {
+      setUploading(true)
+      setTimeout(() => {
+        setDocs([{ name: file.name, uploaded: new Date().toISOString().slice(0, 10) }, ...docs])
+        setFile(null)
+        setUploading(false)
+        if (inputRef.current) inputRef.current.value = ''
+      }, 900)
     }
   }
 
-  function handleUpload() {
-    if (!selected) return;
-    setUploading(true);
-    setTimeout(() => {
-      setFiles([
-        ...files,
-        { name: selected.name, uploaded: new Date().toISOString().slice(0, 10), url: '#' },
-      ]);
-      setSelected(null);
-      setUploading(false);
-    }, 1000);
-  }
-
-  function handleRemove(name: string) {
-    setFiles(files.filter(f => f.name !== name));
-  }
-
   return (
-    <main className="max-w-3xl mx-auto py-12 px-4 min-h-screen">
-      <motion.h1
-        className="text-3xl font-bold text-blue-900 mb-8 flex items-center gap-3 font-['Roboto']"
-        initial={{ opacity: 0, x: -40 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.7 }}
-        style={{ fontWeight: 700 }}
-      >
-        <UploadCloud className="w-8 h-8 text-blue-700" /> File Vault
-      </motion.h1>
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-blue-800 text-lg font-semibold font-['Roboto']">Upload Medical Documents</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-3 items-end mb-6">
-            <input
-              type="file"
-              id="file-input"
-              ref={fileInputRef}
-              className="hidden"
-              onChange={handleFileChange}
-              aria-label="File uploader"
-            />
-            <Button
-              id="choose-file-btn"
-              type="button"
-              className="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg flex gap-2 items-center"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <FileText className="w-5 h-5" />
-              {selected ? selected.name : 'Choose File'}
-            </Button>
-            <Button
-              id="upload-btn"
-              type="button"
-              className="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg ml-2 flex gap-2 items-center"
-              onClick={handleUpload}
-              disabled={!selected || uploading}
-            >
-              <UploadCloud className="w-5 h-5" /> Upload
-            </Button>
-            {uploading && <span className="ml-3 text-blue-700 animate-pulse">Uploading...</span>}
-          </div>
-          <div>
-            <h2 className="text-blue-800 font-semibold mb-2 font-['Roboto']">Your Documents</h2>
-            {files.length === 0 ? (
-              <div className="text-slate-400 py-8 text-center">No uploads yet.</div>
-            ) : (
-              <ul className="divide-y divide-slate-100">
-                {files.map((f, i) => (
-                  <motion.li
-                    key={f.name}
-                    className="flex items-center gap-4 py-4"
-                    initial={{ opacity: 0, x: 30 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.3, delay: i * 0.07 }}
-                  >
-                    <FileText className="w-6 h-6 text-blue-700" />
-                    <span className="flex-1 text-blue-900 font-['Roboto']">{f.name}</span>
-                    <span className="text-xs text-slate-400">Uploaded: {f.uploaded}</span>
-                    <a href={f.url} className="text-blue-700 underline text-sm mr-4" download>
-                      Download
-                    </a>
-                    <Button
-                      id={`remove-file-btn-${i}`}
-                      type="button"
-                      className="bg-red-100 text-red-700 hover:bg-red-200 rounded-lg px-2 py-1"
-                      onClick={() => handleRemove(f.name)}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </motion.li>
+    <div className="bg-slate-50 min-h-screen py-8">
+      <div className="max-w-xl mx-auto">
+        <Card className="shadow-md">
+          <CardHeader className="flex flex-row items-center gap-3 border-b pb-2">
+            <span className="rounded-full bg-blue-50 p-2 text-blue-700"><Upload className="w-6 h-6" /></span>
+            <CardTitle className="text-blue-900 font-['Roboto']">Upload Medical Documents</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form className="flex gap-2 items-center mb-4" onSubmit={handleUpload}>
+              <input
+                id="file-upload-input"
+                ref={inputRef}
+                type="file"
+                className="block border border-slate-200 rounded px-2 py-1 flex-1"
+                onChange={handleFileChange}
+                aria-label="Upload medical document"
+                disabled={uploading}
+              />
+              <Button id="upload-file-btn" type="submit" disabled={!file || uploading}>{uploading ? 'Uploading...' : 'Upload'}</Button>
+            </form>
+            <div>
+              <div className="font-semibold text-slate-700 mb-2">Recently Uploaded</div>
+              <ul className="space-y-2">
+                {docs.map((doc, i) => (
+                  <li key={doc.name + i} className="flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-blue-600" />
+                    <span className="font-['Roboto'] text-slate-700">{doc.name}</span>
+                    <span className="ml-auto text-xs text-slate-400">{doc.uploaded}</span>
+                  </li>
                 ))}
+                {docs.length === 0 && <li className="text-slate-400">No documents uploaded yet.</li>}
               </ul>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    </main>
-  );
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
 }

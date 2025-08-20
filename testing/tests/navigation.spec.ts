@@ -1,66 +1,71 @@
-// navigation.spec.ts
+// Navigation Bar E2E Tests
 import { test, expect } from '@playwright/test';
 
 test.describe('Navigation Bar', () => {
-  test.beforeEach(async ({ page }) => {
+  test('should display logo and brand name', async ({ page }) => {
     await page.goto('/');
-  });
-
-  test('displays logo and brand name', async ({ page }) => {
     const logo = page.locator('img[src="/branding/assets/logo-0.png"]');
     await expect(logo).toBeVisible();
-    await expect(page.getByRole('link', { name: /MedLock Home/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'MedLock Home' })).toBeVisible();
     await expect(page.getByText('MedLock', { exact: true })).toBeVisible();
   });
 
-  test('renders all main navigation links', async ({ page }) => {
-    const navLinks = ['Records', 'Appointments', 'Prescriptions', 'Messaging', 'Notifications', 'Uploads'];
-    for (const link of navLinks) {
-      await expect(page.getByRole('link', { name: new RegExp(link, 'i') })).toBeVisible();
+  test('should display all main navigation links', async ({ page }) => {
+    await page.goto('/');
+    const navLinks = [
+      { label: 'Records', path: '/records' },
+      { label: 'Appointments', path: '/appointments' },
+      { label: 'Prescriptions', path: '/prescriptions' },
+      { label: 'Messaging', path: '/messages' },
+      { label: 'Notifications', path: '/notifications' },
+      { label: 'Uploads', path: '/uploads' }
+    ];
+    for (const { label } of navLinks) {
+      await expect(page.getByRole('link', { name: new RegExp(label) })).toBeVisible();
     }
   });
 
-  test('renders authentication links', async ({ page }) => {
-    await expect(page.locator('#nav-login')).toBeVisible();
-    await expect(page.locator('#nav-signup')).toBeVisible();
-    await expect(page.getByRole('link', { name: /Login/i })).toBeVisible();
-    await expect(page.getByRole('link', { name: /Sign Up/i })).toBeVisible();
+  test('should highlight active nav link', async ({ page }) => {
+    await page.goto('/prescriptions');
+    const prescriptionsLink = page.getByRole('link', { name: /Prescriptions/ });
+    await expect(prescriptionsLink).toHaveAttribute('aria-current', 'page');
+    await expect(prescriptionsLink).toHaveClass(/bg-blue-100/);
   });
 
-  test('highlights current page in navigation', async ({ page }) => {
-    // Home (brand link) is not highlighted for other pages
-    await page.goto('/appointments');
-    const appointmentsLink = page.getByRole('link', { name: /Appointments/i });
-    await expect(appointmentsLink).toHaveAttribute('aria-current', 'page');
-    await expect(appointmentsLink).toHaveClass(/bg-blue-100/);
-  });
-
-  test('navigates to correct pages when nav links are clicked', async ({ page }) => {
-    // Appointments
-    await page.getByRole('link', { name: /Appointments/i }).click();
-    await expect(page).toHaveURL(/\/appointments$/);
-    // Prescriptions
-    await page.getByRole('link', { name: /Prescriptions/i }).click();
-    await expect(page).toHaveURL(/\/prescriptions$/);
-    // Records
-    await page.getByRole('link', { name: /Records/i }).click();
-    await expect(page).toHaveURL(/\/records$/);
-    // Messaging
-    await page.getByRole('link', { name: /Messaging/i }).click();
-    await expect(page).toHaveURL(/\/messages$/);
-    // Notifications
-    await page.getByRole('link', { name: /Notifications/i }).click();
-    await expect(page).toHaveURL(/\/notifications$/);
-    // Uploads
-    await page.getByRole('link', { name: /Uploads/i }).click();
-    await expect(page).toHaveURL(/\/uploads$/);
-  });
-
-  test('navigates to login and signup', async ({ page }) => {
-    await page.locator('#nav-login').click();
-    await expect(page).toHaveURL(/\/login$/);
+  test('should navigate to correct pages when nav links are clicked', async ({ page }) => {
     await page.goto('/');
-    await page.locator('#nav-signup').click();
-    await expect(page).toHaveURL(/\/signup$/);
+    const navLinks = [
+      { label: 'Records', path: '/records' },
+      { label: 'Appointments', path: '/appointments' },
+      { label: 'Prescriptions', path: '/prescriptions' },
+      { label: 'Messaging', path: '/messages' },
+      { label: 'Notifications', path: '/notifications' },
+      { label: 'Uploads', path: '/uploads' }
+    ];
+    for (const { label, path } of navLinks) {
+      await page.click(`role=link[name="${label}"]`);
+      await expect(page).toHaveURL(path);
+      // Go back to home for next link
+      await page.goto('/');
+    }
+  });
+
+  test('should display login and sign up links', async ({ page }) => {
+    await page.goto('/');
+    const loginLink = page.locator('#nav-login');
+    const signUpLink = page.locator('#nav-signup');
+    await expect(loginLink).toBeVisible();
+    await expect(signUpLink).toBeVisible();
+    await expect(loginLink).toHaveAttribute('href', '/login');
+    await expect(signUpLink).toHaveAttribute('href', '/signup');
+  });
+
+  test('should navigate to login and sign up pages via auth links', async ({ page }) => {
+    await page.goto('/');
+    await page.click('#nav-login');
+    await expect(page).toHaveURL('/login');
+    await page.goto('/');
+    await page.click('#nav-signup');
+    await expect(page).toHaveURL('/signup');
   });
 });

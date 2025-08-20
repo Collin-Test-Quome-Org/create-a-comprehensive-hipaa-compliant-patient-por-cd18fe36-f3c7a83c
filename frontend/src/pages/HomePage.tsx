@@ -1,78 +1,80 @@
+// HomePage.tsx
+import { Hero } from '@/components/Hero';
 import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Calendar, FileText, FolderOpen, MessageSquare, Stethoscope } from 'lucide-react';
 
-const heroBg = '/branding/assets/hero-0.png';
-const logo = '/branding/assets/logo-0.png';
+const features = [
+  {
+    icon: <Calendar className="h-8 w-8 text-blue-700" />,
+    title: 'Effortless Appointments',
+    desc: 'Book, track, and manage appointments with a tap. Stay in sync—no more missed visits.',
+    to: '/appointments',
+  },
+  {
+    icon: <Stethoscope className="h-8 w-8 text-blue-700" />,
+    title: 'Medical Records',
+    desc: 'Access your health history anywhere. Secure, searchable, and always at your fingertips.',
+    to: '/medical-records',
+  },
+  {
+    icon: <FileText className="h-8 w-8 text-blue-700" />,
+    title: 'Prescriptions Portal',
+    desc: 'Manage scripts, request refills, and receive timely reminders with total confidence.',
+    to: '/prescriptions',
+  },
+  {
+    icon: <MessageSquare className="h-8 w-8 text-blue-700" />,
+    title: 'Care Team Messaging',
+    desc: 'Direct chat with your healthcare team. Your questions answered, your privacy protected.',
+    to: '/messaging',
+  },
+  {
+    icon: <FolderOpen className="h-8 w-8 text-blue-700" />,
+    title: 'File Vault',
+    desc: 'Upload and store important documents. Everything in one place—secure and organized.',
+    to: '/file-uploads',
+  },
+];
 
 export function HomePage() {
   return (
-    <div className="min-h-screen bg-white">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1 }}
-        style={{ backgroundImage: `url('${heroBg}')` }}
-        className="bg-cover bg-center h-96 relative"
-      >
-        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="flex flex-col items-center gap-6">
-            <img src={logo} className="w-20 h-20 mb-2" />
-            <h1 className="text-white text-5xl font-bold tracking-tight font-['Roboto']">Welcome to SecureMed Portal</h1>
-            <p className="text-white text-lg max-w-xl text-center font-['Roboto']">Empowering you to access, manage, and share your health data with confidence. Trust, safety, and seamless care for every step of your journey.</p>
-            <div className="flex gap-4 mt-4">
-              <Button asChild id="cta-signup" className="bg-[#1d4ed8] text-white font-bold text-lg px-8 py-4 shadow-lg hover:bg-[#243fa8]">
-                <Link to="/signup">Get Started</Link>
-              </Button>
-              <Button asChild variant="outline" id="cta-login" className="text-white border-white border-2 font-bold text-lg px-8 py-4 hover:bg-white hover:text-[#1d4ed8]">
-                <Link to="/login">Sign In</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-      <section className="py-16 px-4 max-w-5xl mx-auto">
-        <motion.div
-          initial={{ y: 60, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.8 }}
+    <main className="w-full min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pb-12">
+      <Hero />
+      <section className="container mx-auto px-4 py-10">
+        <motion.h2
+          className="text-3xl font-bold text-blue-900 mb-8 text-center font-['Roboto']"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700 }}
         >
-          <h2 className="text-3xl font-bold mb-4 font-['Roboto'] text-[#1d4ed8]">All Your Care, One Portal</h2>
-          <p className="text-gray-800 text-lg mb-6 font-['Roboto']">
-            SecureMed Portal is your digital front door to healthcare: view medical records, manage appointments, chat with providers, and handle prescriptions—all in a single, secure place. 
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mt-8">
-            <FeatureCard icon="calendar" title="Appointments" to="/appointments" desc="Book, view, or manage your upcoming visits with ease." />
-            <FeatureCard icon="folder-lock" title="Records" to="/medical-records" desc="Access your personal health records securely and instantly." />
-            <FeatureCard icon="pill" title="Prescriptions" to="/prescriptions" desc="View prescriptions, request refills, and track medication." />
-            <FeatureCard icon="messages-square" title="Messaging" to="/messaging" desc="Message your care team for timely answers and support." />
-          </div>
-        </motion.div>
+          Medivault: Healthcare in Your Hands
+        </motion.h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {features.map((f, i) => (
+            <motion.div
+              key={f.title}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: i * 0.15 }}
+            >
+              <Link to={f.to} className="block h-full">
+                <Card className="hover:shadow-xl transition-shadow duration-200 h-full">
+                  <CardHeader className="flex flex-row gap-4 items-center border-b-0">
+                    {f.icon}
+                    <CardTitle className="text-lg font-bold text-blue-800 font-['Roboto']" style={{ fontWeight: 700 }}>{f.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-slate-700 text-sm font-['Roboto']" style={{ fontWeight: 400 }}>
+                    {f.desc}
+                  </CardContent>
+                </Card>
+              </Link>
+            </motion.div>
+          ))}
+        </div>
       </section>
-    </div>
-  );
-}
-
-import { Calendar, FolderLock, Pill, MessagesSquare } from 'lucide-react';
-
-function FeatureCard({ icon, title, desc, to }: { icon: string, title: string, desc: string, to: string }) {
-  const icons: Record<string, JSX.Element> = {
-    calendar: <Calendar className="w-8 h-8 text-[#1d4ed8]" />, 
-    'folder-lock': <FolderLock className="w-8 h-8 text-[#1d4ed8]" />, 
-    pill: <Pill className="w-8 h-8 text-[#1d4ed8]" />, 
-    'messages-square': <MessagesSquare className="w-8 h-8 text-[#1d4ed8]" />
-  };
-  return (
-    <motion.div
-      whileHover={{ y: -6, boxShadow: '0 10px 32px 0 rgba(29,78,216,0.16)' }}
-      className="rounded-xl bg-white border border-[#e5e7eb] shadow transition-all p-6 flex flex-col gap-4 items-start"
-    >
-      <div>{icons[icon]}</div>
-      <h3 className="font-bold text-xl font-['Roboto']">{title}</h3>
-      <p className="text-gray-700 font-['Roboto']">{desc}</p>
-      <Button asChild variant="link" id={`feature-${title.toLowerCase()}-link`} className="text-[#1d4ed8] font-semibold px-0 mt-auto">
-        <Link to={to}>Go to {title}</Link>
-      </Button>
-    </motion.div>
+    </main>
   );
 }

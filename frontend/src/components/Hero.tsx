@@ -1,32 +1,47 @@
-// Hero.tsx - Big marketing hero slider
-import { Button } from '@/components/ui/button'
-import { motion } from 'framer-motion'
+// Hero.tsx
+import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 
-export const Hero = () => {
+export function Hero() {
   return (
-    <section className="relative w-full bg-cover bg-center min-h-[28rem] flex flex-col justify-center" style={{ backgroundImage: `url('/branding/assets/hero-0.png')` }}>
-      <div className="absolute inset-0 bg-black/60 z-0"/>
-      <motion.div
-        className="relative z-10 max-w-4xl mx-auto px-6 py-16 flex flex-col items-center text-center"
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7 }}
-      >
-        <h1 className="text-5xl md:text-6xl font-bold text-white mb-4 font-['Roboto']" style={{ fontWeight: 700 }}>
-          Welcome to MedLock Portal
-        </h1>
-        <p className="text-xl md:text-2xl text-slate-200 font-['Roboto'] mb-8 max-w-2xl">
-          Secure. Simple. Seamless. <br/>Effortlessly manage your medical records, appointments, prescriptions, and connect with your care team—all in one protected hub.
-        </p>
-        <div className="flex gap-4 justify-center">
-          <Button asChild id="cta-signup" className="text-lg px-8 py-5 font-semibold bg-blue-700 hover:bg-blue-800">
-            <a href="/signup">Join Now</a>
-          </Button>
-          <Button asChild variant="outline" id="cta-login" className="text-lg px-8 py-5 font-semibold border-white text-white hover:bg-white/10">
-            <a href="/login">Sign In</a>
-          </Button>
-        </div>
-      </motion.div>
-    </section>
-  )
+    <div
+      style={{ backgroundImage: "url('/branding/assets/hero-0.png')" }}
+      className="bg-cover bg-center h-96 relative rounded-lg overflow-hidden shadow-lg mb-10"
+    >
+      <div className="absolute inset-0 bg-black bg-opacity-60 flex flex-col items-center justify-center text-center">
+        <motion.h1
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-white text-5xl font-bold mb-3 font-['Roboto']"
+          style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700 }}
+        >
+          Welcome to Medivault
+        </motion.h1>
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1 }}
+          className="text-slate-200 text-lg mb-6 font-['Roboto'] max-w-xl mx-auto"
+          style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400 }}
+        >
+          Your secure, modern portal for managing appointments, medical records, prescriptions, and direct care team messaging. Because you deserve healthcare access as connected as your life.
+        </motion.p>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.2 }}
+          className="flex gap-4 justify-center"
+        >
+          <Link to="/signup">
+            <Button id="hero-signup-btn" className="bg-blue-700 hover:bg-blue-800 text-white text-lg px-6 py-3 rounded-full shadow-lg font-semibold">Get Started</Button>
+          </Link>
+          <Link to="/login">
+            <Button id="hero-login-btn" variant="outline" className="border-white border-2 text-white hover:bg-white hover:text-blue-800 text-lg px-6 py-3 rounded-full font-semibold">Login</Button>
+          </Link>
+        </motion.div>
+      </div>
+    </div>
+  );
 }

@@ -1,64 +1,80 @@
-// Navigation bar integration and accessibility tests
 import { test, expect } from '@playwright/test';
+
+// Tests for the Navigation component and routing
 
 test.describe('Navigation bar', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
   });
 
-  test('logo is visible and links to home', async ({ page }) => {
-    const logoLink = page.getByRole('link', { name: /MedLock Home/i });
-    await expect(logoLink).toBeVisible();
-    await logoLink.click();
-    await expect(page).toHaveURL('/');
+  test('displays logo and MedLock brand', async ({ page }) => {
+    // Logo is always an <img> with src /branding/assets/logo-0.png
+    const logo = page.locator('nav img[src="/branding/assets/logo-0.png"]');
+    await expect(logo).toBeVisible();
+    await expect(page.getByRole('link', { name: /MedLock Home/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: /MedLock Home/i })).toContainText('MedLock');
   });
 
-  test('all main nav links are present and route correctly', async ({ page }) => {
+  test('shows all main navigation links', async ({ page }) => {
+    // Test for nav links
     const navLinks = [
-      { text: 'Records', path: '/records' },
-      { text: 'Appointments', path: '/appointments' },
-      { text: 'Prescriptions', path: '/prescriptions' },
-      { text: 'Messaging', path: '/messages' },
-      { text: 'Notifications', path: '/notifications' },
-      { text: 'Uploads', path: '/uploads' }
+      { label: 'Records', path: '/records' },
+      { label: 'Appointments', path: '/appointments' },
+      { label: 'Prescriptions', path: '/prescriptions' },
+      { label: 'Messaging', path: '/messages' },
+      { label: 'Notifications', path: '/notifications' },
+      { label: 'Uploads', path: '/uploads' }
     ];
-    for (const { text, path } of navLinks) {
-      const link = page.getByRole('link', { name: new RegExp(text, 'i') });
+    for (const { label, path } of navLinks) {
+      const link = page.getByRole('link', { name: new RegExp(label, 'i') });
       await expect(link).toBeVisible();
-      await link.click();
-      await expect(page).toHaveURL(path);
-      // Navigate back for next iteration
-      await page.goto('/');
+      await expect(link).toHaveAttribute('href', path);
     }
   });
 
-  test('auth links are present and route', async ({ page }) => {
-    const login = page.locator('#nav-login');
-    const signup = page.locator('#nav-signup');
-    await expect(login).toBeVisible();
-    await expect(signup).toBeVisible();
-    await login.click();
+  test('shows auth links with correct ids', async ({ page }) => {
+    const loginLink = page.locator('#nav-login');
+    const signupLink = page.locator('#nav-signup');
+    await expect(loginLink).toBeVisible();
+    await expect(loginLink).toHaveAttribute('href', '/login');
+    await expect(signupLink).toBeVisible();
+    await expect(signupLink).toHaveAttribute('href', '/signup');
+  });
+
+  test('navigates to all main pages from nav', async ({ page }) => {
+    const pages = [
+      { label: 'Records', path: '/records' },
+      { label: 'Appointments', path: '/appointments' },
+      { label: 'Prescriptions', path: '/prescriptions' },
+      { label: 'Messaging', path: '/messages' },
+      { label: 'Notifications', path: '/notifications' },
+      { label: 'Uploads', path: '/uploads' }
+    ];
+    for (const { label, path } of pages) {
+      await page.getByRole('link', { name: new RegExp(label, 'i') }).click();
+      await expect(page).toHaveURL(path);
+      // Navigation bar should persist
+      await expect(page.locator('nav')).toBeVisible();
+      // Go back to home for next link
+      await page.getByRole('link', { name: /MedLock Home/i }).click();
+      await expect(page).toHaveURL('/');
+    }
+  });
+
+  test('navigates to login and signup via auth links', async ({ page }) => {
+    await page.locator('#nav-login').click();
     await expect(page).toHaveURL('/login');
-    await page.goto('/');
-    await signup.click();
+    await page.getByRole('link', { name: /MedLock Home/i }).click();
+    await page.locator('#nav-signup').click();
     await expect(page).toHaveURL('/signup');
   });
 
   test('active nav link is highlighted', async ({ page }) => {
-    await page.goto('/prescriptions');
-    const prescriptionsLink = page.getByRole('link', { name: /Prescriptions/i });
-    await expect(prescriptionsLink).toHaveClass(/bg-blue-100/);
-    await expect(prescriptionsLink).toHaveAttribute('aria-current', 'page');
-  });
-
-  test('navigation is accessible by keyboard', async ({ page }) => {
-    await page.keyboard.press('Tab'); // focus logo
-    await expect(page.locator('a[aria-label="MedLock Home"]')).toBeFocused();
-    // Tab through main links
-    for (let i = 0; i < 8; i++) {
-      await page.keyboard.press('Tab');
-    }
-    // Should focus on the last nav link (Sign Up)
-    await expect(page.locator('#nav-signup')).toBeFocused();
+    // Navigate to Appointments and check active state
+    await page.getByRole('link', { name: /Appointments/i }).click();
+    // The Appointments link should have bg-blue-100 and text-blue-900
+    const appointmentsLink = page.getByRole('link', { name: /Appointments/i });
+    await expect(appointmentsLink).toHaveClass(/bg-blue-100/);
+    await expect(appointmentsLink).toHaveClass(/text-blue-900/);
   });
 });

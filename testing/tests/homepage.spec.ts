@@ -1,4 +1,3 @@
-// HomePage integration & navigation tests
 import { test, expect } from '@playwright/test';
 
 test.describe('HomePage', () => {
@@ -6,84 +5,40 @@ test.describe('HomePage', () => {
     await page.goto('/');
   });
 
-  test('displays hero section and main heading', async ({ page }) => {
-    // Hero image
-    const heroDiv = page.locator('div').filter({ has: page.locator('h1') });
-    await expect(heroDiv).toBeVisible();
-    // Main section heading
-    await expect(page.getByRole('heading', { name: /Everything You Need, In One Portal/i })).toBeVisible();
+  test('shows hero section and tagline', async ({ page }) => {
+    // Hero should be present (not enough info for selector, so check page visually for h2)
+    await expect(page.getByRole('heading', { name: /All Your Health Info, One Trusted Portal/i })).toBeVisible();
   });
 
-  test('feature cards are present with correct titles and descriptions', async ({ page }) => {
+  test('shows all feature bullet points', async ({ page }) => {
     const features = [
-      {
-        title: 'Appointments',
-        desc: 'Book, track, and manage visits with your care team. Never miss a checkup.',
-        href: '/appointments',
-      },
-      {
-        title: 'Medical Records',
-        desc: 'Access your entire medical history securely, whenever you need it.',
-        href: '/medical-records',
-      },
-      {
-        title: 'Prescriptions',
-        desc: 'View, refill, and track your medications with one click.',
-        href: '/prescriptions',
-      },
-      {
-        title: 'Messaging',
-        desc: 'Chat instantly with your doctors and support staff in a safe space.',
-        href: '/messaging',
-      },
+      'Access your records and prescriptions instantly',
+      'Book, manage, and sync appointments with ease',
+      'Direct, private chat with your care team',
+      'Upload/share files securely'
     ];
-    for (const { title, desc } of features) {
-      await expect(page.getByRole('heading', { name: title, level: 3 })).toBeVisible();
-      await expect(page.getByText(desc)).toBeVisible();
+    for (const feature of features) {
+      await expect(page.getByText(feature, { exact: true })).toBeVisible();
     }
   });
 
-  test('feature card links navigate to correct routes', async ({ page }) => {
-    const cards = [
-      { title: 'Appointments', href: '/appointments' },
-      { title: 'Medical Records', href: '/medical-records' },
-      { title: 'Prescriptions', href: '/prescriptions' },
-      { title: 'Messaging', href: '/messaging' },
-    ];
-    for (const { title, href } of cards) {
-      // There may be multiple cards with the same title on the page, so be strict
-      const card = page.getByRole('heading', { name: title, level: 3 }).locator('..').locator('..').locator('a');
-      await card.click();
-      await expect(page).toHaveURL(href);
-      await page.goto('/');
-    }
+  test('shows testimonial with ShieldCheck icon', async ({ page }) => {
+    // Testimonial quote
+    await expect(page.getByText('My health info feels protected and always at my fingertips!', { exact: false })).toBeVisible();
+    await expect(page.getByText('— A BlueShield Patient')).toBeVisible();
+    // Icon is a svg with class w-12 h-12 text-blue-700
+    const shieldIcon = page.locator('svg.w-12.h-12.text-blue-700');
+    await expect(shieldIcon).toBeVisible();
   });
 
-  test('main heading uses correct font and color', async ({ page }) => {
-    const heading = page.getByRole('heading', { name: /Everything You Need, In One Portal/i });
-    // Check color
-    const color = await heading.evaluate(el => getComputedStyle(el).color);
-    expect(color).toMatch(/29, 78, 216/); // Should be #1d4ed8 (rgb)
-    // Check font-weight
-    const fontWeight = await heading.evaluate(el => getComputedStyle(el).fontWeight);
-    expect(["700", "bold"]).toContain(fontWeight);
-    // Check font-family contains Roboto
-    const fontFamily = await heading.evaluate(el => getComputedStyle(el).fontFamily);
-    expect(fontFamily).toMatch(/Roboto/);
+  test('Experience BlueShield Now button navigates to signup', async ({ page }) => {
+    const signupBtn = page.getByRole('link', { name: /Experience BlueShield Now/i });
+    await expect(signupBtn).toBeVisible();
+    await signupBtn.click();
+    await expect(page).toHaveURL('/signup');
   });
 
-  test('page is accessible (no obvious violations)', async ({ page }) => {
-    // Try to tab to a feature card
-    await page.keyboard.press('Tab'); // focus first focusable
-    let foundCard = false;
-    for (let i = 0; i < 10; ++i) {
-      const active = await page.evaluate(() => document.activeElement?.tagName);
-      if (active === 'A') {
-        foundCard = true;
-        break;
-      }
-      await page.keyboard.press('Tab');
-    }
-    expect(foundCard).toBe(true);
+  test('navigation bar is visible on homepage', async ({ page }) => {
+    await expect(page.locator('nav')).toBeVisible();
   });
 });

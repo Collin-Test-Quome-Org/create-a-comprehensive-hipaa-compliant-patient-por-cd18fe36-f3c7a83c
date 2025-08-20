@@ -1,107 +1,70 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { useMockAuth } from '@/components/MockAuthContext';
 import { motion } from 'framer-motion';
 import { UserPlus } from 'lucide-react';
 
 export function SignupPage() {
-  const navigate = useNavigate();
-  const [form, setForm] = useState({ email: '', password: '', name: '' });
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [pw, setPw] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const { login } = useMockAuth();
+  const navigate = useNavigate();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-    setError('');
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setTimeout(() => {
+      login('patient');
       setLoading(false);
-      // Mock: all signups succeed
-      navigate('/portal');
-    }, 1000);
-  };
+      navigate('/');
+    }, 900);
+  }
 
   return (
-    <div className="flex min-h-[80vh] items-center justify-center bg-gradient-to-br from-[#e0e7ff] to-[#f8fafc]">
-      <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
-        <Card className="shadow-2xl rounded-2xl">
-          <CardHeader className="flex flex-col items-center gap-4 pb-2">
-            <div className="bg-[#1d4ed8] rounded-full p-2 mb-2">
-              <UserPlus className="text-white" size={32} />
-            </div>
-            <CardTitle className="font-roboto text-2xl text-[#1d4ed8] font-bold">Create Your PortalGuard Account</CardTitle>
-            <p className="font-roboto text-gray-500 text-sm">Join a community that puts your privacy and health first.</p>
-          </CardHeader>
-          <CardContent>
-            <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-              <div>
-                <label htmlFor="signup-name" className="block mb-1 text-gray-700 font-medium">Full Name</label>
-                <Input
-                  id="signup-name"
-                  name="name"
-                  type="text"
-                  required
-                  value={form.name}
-                  onChange={handleChange}
-                  placeholder="Jane Doe"
-                  autoComplete="name"
-                  className="font-roboto"
-                />
-              </div>
-              <div>
-                <label htmlFor="signup-email" className="block mb-1 text-gray-700 font-medium">Email</label>
-                <Input
-                  id="signup-email"
-                  name="email"
-                  type="email"
-                  required
-                  value={form.email}
-                  onChange={handleChange}
-                  placeholder="you@email.com"
-                  autoComplete="email"
-                  className="font-roboto"
-                />
-              </div>
-              <div>
-                <label htmlFor="signup-password" className="block mb-1 text-gray-700 font-medium">Password</label>
-                <Input
-                  id="signup-password"
-                  name="password"
-                  type="password"
-                  required
-                  value={form.password}
-                  onChange={handleChange}
-                  placeholder="••••••••"
-                  autoComplete="new-password"
-                  className="font-roboto"
-                />
-              </div>
-              {error && <div className="text-red-600 text-sm font-roboto">{error}</div>}
-              <Button
-                type="submit"
-                id="signup-submit-btn"
-                className="w-full mt-2 bg-[#1d4ed8] hover:bg-[#2563eb] font-roboto font-semibold text-base flex gap-2 items-center justify-center"
-                disabled={loading}
-              >
-                {loading ? (
-                  <span>Creating account…</span>
-                ) : (
-                  <><UserPlus className="mr-1" size={18} /> Sign Up</>
-                )}
-              </Button>
-              <div className="flex justify-between pt-2">
-                <Link to="/login" className="text-[#1d4ed8] hover:underline text-sm font-roboto">Already have an account?</Link>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-      </motion.div>
+    <div className="flex flex-col items-center justify-center min-h-[70vh] px-4 py-8">
+      <motion.form
+        onSubmit={handleSubmit}
+        className="w-full max-w-sm bg-white rounded-xl shadow-lg p-8 flex flex-col gap-4"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        <h1 className="text-2xl font-bold text-blue-900 mb-2" style={{ fontFamily: 'Roboto', fontWeight: 700 }}>Create Your MedLock Account</h1>
+        <label htmlFor="signup-name" className="text-sm text-slate-700 font-medium">Full Name</label>
+        <Input
+          id="signup-name"
+          required
+          value={name}
+          onChange={e => setName(e.target.value)}
+          placeholder="Your Name"
+        />
+        <label htmlFor="signup-email" className="text-sm text-slate-700 font-medium">Email</label>
+        <Input
+          id="signup-email"
+          autoComplete="username"
+          required
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+          placeholder="you@email.com"
+        />
+        <label htmlFor="signup-password" className="text-sm text-slate-700 font-medium">Password</label>
+        <Input
+          id="signup-password"
+          type="password"
+          autoComplete="new-password"
+          required
+          value={pw}
+          onChange={e => setPw(e.target.value)}
+          placeholder="••••••••"
+        />
+        <Button id="signup-btn" type="submit" disabled={loading} className="mt-3 flex gap-2 items-center">
+          <UserPlus className="w-4 h-4" /> {loading ? 'Signing up...' : 'Sign Up'}
+        </Button>
+      </motion.form>
     </div>
   );
 }

@@ -1,91 +1,113 @@
 import { useState } from 'react'
-import { Card, CardContent } from '@/components/ui/card'
+import { Send, MessageCircle, Lock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Send, UserCircle, Lock } from 'lucide-react'
+import { Input } from '@/components/ui/input'
 import { motion } from 'framer-motion'
 
-const mockMessages = [
-  { sender: 'Dr. Emily Tran', body: 'Your latest results look great. Let me know if you have any questions!', sentAt: 'Today 09:41am', fromMe: false },
-  { sender: 'You', body: 'Thank you! Please confirm my refill on Lipitor?', sentAt: 'Today 09:44am', fromMe: true },
-  { sender: 'Dr. Emily Tran', body: 'Refill approved. Pharmacy will be notified. Stay healthy!', sentAt: 'Today 10:01am', fromMe: false },
+const mockThreads = [
+  {
+    id: 1,
+    name: 'Dr. Jane Foster',
+    messages: [
+      { sender: 'Dr. Foster', text: 'Your recent lab results look good.', time: '09:10 AM' },
+      { sender: 'Me', text: 'Thank you! When should I schedule my next appointment?', time: '09:13 AM' },
+      { sender: 'Dr. Foster', text: 'Let’s book for 3 months out. Would you like me to send a link?', time: '09:15 AM' },
+    ],
+  },
+  {
+    id: 2,
+    name: 'Pharmacy',
+    messages: [
+      { sender: 'Pharmacy', text: 'Your refill for Lisinopril is ready.', time: 'Yesterday' },
+    ],
+  },
 ]
 
 export function MessagingPage() {
-  const [messages, setMessages] = useState(mockMessages)
-  const [value, setValue] = useState('')
+  const [selectedThread, setSelectedThread] = useState(mockThreads[0])
+  const [input, setInput] = useState('')
   const [sending, setSending] = useState(false)
 
-  function sendMessage(e: React.FormEvent) {
-    e.preventDefault()
-    if (!value.trim()) return
-    setSending(true)
+  function handleSend(e: React.FormEvent) {
+    e.preventDefault();
+    if (!input) return;
+    setSending(true);
     setTimeout(() => {
-      setMessages([
-        ...messages,
-        { sender: 'You', body: value, sentAt: 'Now', fromMe: true },
-      ])
-      setValue('')
-      setSending(false)
-    }, 600)
+      setSelectedThread((prev) => ({
+        ...prev,
+        messages: [
+          ...prev.messages,
+          { sender: 'Me', text: input, time: 'Now' },
+        ],
+      }));
+      setInput('');
+      setSending(false);
+    }, 700);
   }
 
   return (
-    <div className="max-w-2xl mx-auto py-10 px-4">
-      <motion.h1
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-3xl md:text-4xl font-bold text-[#1d4ed8] font-['Roboto'] mb-6"
-        style={{ fontWeight: 700 }}
-      >
-        Secure Messaging
-      </motion.h1>
-      <Card className="mb-6">
-        <CardContent className="p-4 flex flex-col gap-4 min-h-[320px]">
-          <div className="flex items-center gap-2 text-blue-900 mb-2">
-            <Lock className="w-4 h-4" />
-            <span className="font-semibold text-xs">Encrypted - Only you and your care team can read these messages</span>
-          </div>
-          <div className="space-y-3 flex-1 overflow-y-auto">
-            {messages.map((msg, i) => (
-              <motion.div
-                initial={{ opacity: 0, x: msg.fromMe ? 20 : -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.03 }}
-                key={i}
-                className={`flex ${msg.fromMe ? 'justify-end' : 'justify-start'}`}
+    <div className="flex flex-col md:flex-row w-full max-w-4xl mx-auto px-4 py-8 gap-6">
+      <div className="md:w-1/3 bg-white rounded-xl shadow p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <MessageCircle className="text-blue-700 w-6 h-6" />
+          <h2 className="text-blue-900 font-bold text-xl" style={{ fontFamily: 'Roboto', fontWeight: 700 }}>My Secure Messages</h2>
+        </div>
+        <ul className="space-y-2">
+          {mockThreads.map(thread => (
+            <li key={thread.id}>
+              <button
+                id={`thread-${thread.id}`}
+                className={`w-full text-left px-3 py-2 rounded transition font-medium ${selectedThread.id === thread.id
+                  ? 'bg-blue-100 text-blue-900' : 'hover:bg-slate-50 text-slate-700'}`}
+                onClick={() => setSelectedThread(thread)}
+                aria-current={selectedThread.id === thread.id ? 'true' : undefined}
               >
-                <div className={`rounded-lg px-4 py-2 ${msg.fromMe ? 'bg-blue-100 text-blue-900' : 'bg-slate-100 text-slate-800'} max-w-xs shadow-sm`}>
-                  <div className="flex items-center gap-2 mb-0.5">
-                    {msg.fromMe ? <UserCircle className="w-4 h-4 text-blue-500" /> : <UserCircle className="w-4 h-4 text-slate-400" />}
-                    <span className="text-xs font-semibold">{msg.sender}</span>
-                  </div>
-                  <div className="text-sm font-['Roboto']" style={{fontWeight: 400}}>{msg.body}</div>
-                  <div className="text-[10px] text-slate-400 text-right mt-1">{msg.sentAt}</div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-      <form className="flex gap-2" onSubmit={sendMessage}>
-        <input
-          id="message-input"
-          className="flex-1 border border-slate-300 rounded-md px-3 py-2 focus:outline-none focus:border-blue-400 text-base font-['Roboto']"
-          placeholder="Type your message..."
-          autoComplete="off"
-          value={value}
-          onChange={e => setValue(e.target.value)}
-        />
-        <Button
-          id="send-message-btn"
-          type="submit"
-          disabled={sending || !value.trim()}
-          className="flex items-center gap-1"
-        >
-          <Send className="w-4 h-4" />
-          Send
-        </Button>
-      </form>
+                {thread.name}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div className="md:flex-1 bg-white rounded-xl shadow p-4 flex flex-col">
+        <div className="flex items-center gap-2 mb-2">
+          <Lock className="w-4 h-4 text-blue-500" />
+          <span className="text-xs text-blue-600">End-to-end encrypted</span>
+        </div>
+        <h3 className="text-lg font-semibold text-blue-800 mb-3">{selectedThread.name}</h3>
+        <div className="flex-1 overflow-y-auto mb-4 pr-1">
+          {selectedThread.messages.map((msg, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.04 }}
+              className={`mb-3 flex ${msg.sender === 'Me' ? 'justify-end' : 'justify-start'}`}
+            >
+              <div className={`px-4 py-2 rounded-2xl text-sm max-w-xs break-words shadow-sm ${msg.sender === 'Me'
+                ? 'bg-blue-100 text-blue-900'
+                : 'bg-slate-100 text-slate-700'}`}
+                >{msg.text}
+                <span className="ml-2 text-xs text-slate-400">{msg.time}</span>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+        <form onSubmit={handleSend} className="flex gap-2 mt-auto">
+          <Input
+            id="message-input"
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            autoComplete="off"
+            placeholder="Type your message..."
+            className="flex-1"
+            disabled={sending}
+          />
+          <Button id="send-btn" type="submit" disabled={!input || sending} className="flex gap-2 items-center">
+            <Send className="w-4 h-4" />
+            Send
+          </Button>
+        </form>
+      </div>
     </div>
   )
 }

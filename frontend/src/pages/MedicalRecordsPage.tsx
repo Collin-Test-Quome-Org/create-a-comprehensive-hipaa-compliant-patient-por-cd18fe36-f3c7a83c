@@ -1,108 +1,70 @@
-// MedicalRecordsPage.tsx
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { FileText, Search, Download, UploadCloud } from 'lucide-react'
-import { useState } from 'react'
-import { motion } from 'framer-motion'
+import React from 'react';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { FileText, Download } from 'lucide-react';
 
 const mockRecords = [
   {
-    id: 'rec-001',
-    name: 'Annual Physical Exam',
-    type: 'Visit Summary',
-    date: '2024-02-15',
-    doctor: 'Dr. Kayla Lin',
-    fileUrl: '#',
+    date: '2024-06-01',
+    doctor: 'Dr. Alex Chen',
+    type: 'Annual Physical',
+    summary: 'Routine annual physical examination. No significant findings.',
+    attachment: true,
   },
   {
-    id: 'rec-002',
-    name: 'Lipid Panel',
-    type: 'Lab Result',
-    date: '2024-01-12',
-    doctor: 'Dr. Kayla Lin',
-    fileUrl: '#',
+    date: '2024-05-15',
+    doctor: 'Dr. Jamie Carter',
+    type: 'Blood Test',
+    summary: 'Complete blood count and cholesterol screening.',
+    attachment: true,
   },
   {
-    id: 'rec-003',
-    name: 'COVID-19 Vaccine',
-    type: 'Immunization',
-    date: '2023-11-03',
-    doctor: 'Nurse James',
-    fileUrl: '#',
+    date: '2024-03-22',
+    doctor: 'Dr. Priya Patel',
+    type: 'Specialist Referral',
+    summary: 'Referred to dermatology for skin check. No urgent findings.',
+    attachment: false,
   },
-]
+];
 
-export const MedicalRecordsPage = () => {
-  const [search, setSearch] = useState('')
-  const filteredRecords = mockRecords.filter(r => (
-    r.name.toLowerCase().includes(search.toLowerCase()) ||
-    r.type.toLowerCase().includes(search.toLowerCase())
-  ))
+export function MedicalRecordsPage() {
   return (
-    <div className="bg-slate-50 min-h-screen pb-16">
-      <motion.div className="bg-blue-50 py-8 mb-8 border-b border-blue-100 shadow-sm"
-        initial={{opacity: 0, y: -30}}
-        animate={{opacity: 1, y: 0}}
-      >
-        <div className="container mx-auto px-4 flex flex-col md:flex-row items-center gap-6">
-          <FileText className="w-10 h-10 text-blue-800 mx-auto md:mx-0" />
-          <div className="flex-1">
-            <h1 className="text-2xl md:text-3xl font-bold text-blue-900 font-['Roboto'] mb-1">Your Medical Records</h1>
-            <p className="text-slate-700 font-['Roboto']">View, search, and download your clinical history. Only you and your care team can access these files—no exceptions.</p>
-          </div>
-          <Button id="upload-medical-record" variant="outline" className="gap-2 whitespace-nowrap" asChild>
-            <a href="/uploads">
-              <UploadCloud className="w-5 h-5" /> Upload Document
-            </a>
-          </Button>
-        </div>
-      </motion.div>
-      <div className="container mx-auto px-4">
-        <div className="flex flex-col md:flex-row items-center gap-3 mb-6">
-          <div className="flex items-center w-full md:w-1/2 bg-white border rounded-lg shadow px-2">
-            <Search className="w-5 h-5 text-blue-400" />
-            <input
-              id="records-search"
-              type="text"
-              className="flex-1 outline-none border-0 bg-transparent py-2 px-2 text-slate-700 font-['Roboto']"
-              placeholder="Search by name or type..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-            />
-          </div>
-        </div>
-        <div className="grid md:grid-cols-2 gap-6">
-          {filteredRecords.length === 0 ? (
-            <Card className="col-span-2 border-blue-100">
-              <CardHeader>
-                <CardTitle className="text-blue-900">No Records Found</CardTitle>
-                <CardDescription className="text-slate-700">No medical records match your search.</CardDescription>
-              </CardHeader>
-            </Card>
-          ) : (
-            filteredRecords.map(record => (
-              <motion.div key={record.id} initial={{opacity:0, y:10}} animate={{opacity:1, y:0}}>
-                <Card className="border-blue-100 shadow hover:shadow-md transition-shadow">
-                  <CardHeader className="flex flex-row items-center gap-3">
-                    <FileText className="w-6 h-6 text-blue-700" />
-                    <div>
-                      <CardTitle className="text-lg text-blue-900">{record.name}</CardTitle>
-                      <CardDescription className="text-slate-700">{record.type} • {record.date}</CardDescription>
+    <div className="flex flex-col items-center pt-8 min-h-screen bg-slate-50">
+      <div className="w-full max-w-4xl px-4">
+        <Card className="mb-8 shadow-md border-primary/20">
+          <CardHeader>
+            <CardTitle className="text-3xl font-bold text-primary tracking-tight flex items-center gap-2" style={{ fontFamily: 'Roboto, sans-serif' }}>
+              <FileText className="text-primary" /> Medical Records
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="mb-4 text-secondary-foreground text-lg">Browse and download your medical records. Your health, your control. Stay protected with Medivault's secure, patient-first portal.</p>
+
+            <div className="grid gap-6">
+              {mockRecords.map((record, idx) => (
+                <Card key={idx} className="bg-white/80 border-slate-200 shadow-md hover:shadow-lg transition-shadow">
+                  <CardHeader className="flex-row items-center gap-4">
+                    <div className="flex-1">
+                      <CardTitle className="text-xl font-semibold text-primary" style={{ fontFamily: 'Roboto, sans-serif' }}>
+                        {record.type} <span className="text-base font-normal text-secondary ml-2">({record.date})</span>
+                      </CardTitle>
+                      <span className="block text-muted-foreground text-sm">Doctor: {record.doctor}</span>
                     </div>
+                    {record.attachment && (
+                      <Button id={`download-record-${idx}`} variant="outline" className="border-primary text-primary flex gap-2">
+                        <Download size={18} /> Download PDF
+                      </Button>
+                    )}
                   </CardHeader>
-                  <CardContent className="flex flex-col gap-2 mt-2">
-                    <span className="text-slate-600 text-sm">Provider: {record.doctor}</span>
-                    <Button id={`download-record-${record.id}`} variant="outline" size="sm" className="gap-2 w-max" asChild>
-                      <a href={record.fileUrl} download>
-                        <Download className="w-4 h-4" /> Download
-                      </a>
-                    </Button>
+                  <CardContent>
+                    <p className="text-base text-secondary-foreground">{record.summary}</p>
                   </CardContent>
                 </Card>
-              </motion.div>
-            ))
-          )}
-        </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
+  );
 }

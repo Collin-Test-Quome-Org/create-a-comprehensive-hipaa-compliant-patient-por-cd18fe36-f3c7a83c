@@ -1,87 +1,67 @@
-// PrescriptionsPage.tsx
-import { Pill, RefreshCw, CheckCircle, Clock } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card'
-import { motion } from 'framer-motion'
-import { useState } from 'react'
+import React from 'react';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Pill, Download } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const mockPrescriptions = [
   {
-    id: 'rx-001',
     name: 'Atorvastatin',
-    dose: '20mg',
-    instructions: 'Take one tablet daily',
-    status: 'Active',
-    lastFilled: '2024-05-10',
-    refillsLeft: 2,
+    doctor: 'Dr. Alex Chen',
+    dosage: '20mg',
+    frequency: 'Once daily',
+    refill: 2,
+    expires: '2024-08-01',
+    attachment: true,
   },
   {
-    id: 'rx-002',
-    name: 'Lisinopril',
-    dose: '10mg',
-    instructions: 'Take one tablet daily',
-    status: 'Expired',
-    lastFilled: '2023-11-01',
-    refillsLeft: 0,
-  }
-]
+    name: 'Loratadine',
+    doctor: 'Dr. Jamie Carter',
+    dosage: '10mg',
+    frequency: 'As needed for allergies',
+    refill: 0,
+    expires: '2024-05-10',
+    attachment: false,
+  },
+];
 
-export const PrescriptionsPage = () => {
-  const [prescriptions] = useState(mockPrescriptions)
+export function PrescriptionsPage() {
   return (
-    <div className="bg-slate-50 min-h-screen pb-16">
-      <motion.div className="bg-blue-50 py-8 mb-8 border-b border-blue-100 shadow-sm"
-        initial={{opacity: 0, y: -30}}
-        animate={{opacity: 1, y: 0}}
-      >
-        <div className="container mx-auto px-4 flex flex-col md:flex-row items-center gap-6">
-          <Pill className="w-10 h-10 text-blue-800 mx-auto md:mx-0" />
-          <div className="flex-1">
-            <h1 className="text-2xl md:text-3xl font-bold text-blue-900 font-['Roboto'] mb-1">Prescriptions</h1>
-            <p className="text-slate-700 font-['Roboto']">See your active and past prescriptions, and request refills with a click.</p>
-          </div>
-        </div>
-      </motion.div>
-      <div className="container mx-auto px-4">
-        <div className="grid md:grid-cols-2 gap-6">
-          {prescriptions.length === 0 ? (
-            <Card className="col-span-2 border-blue-100">
-              <CardHeader>
-                <CardTitle className="text-blue-900">No Prescriptions Found</CardTitle>
-                <CardDescription className="text-slate-700">You have no prescriptions on file.</CardDescription>
-              </CardHeader>
-            </Card>
-          ) : (
-            prescriptions.map(rx => (
-              <motion.div key={rx.id} initial={{opacity:0, y:10}} animate={{opacity:1, y:0}}>
-                <Card className="border-blue-100 shadow hover:shadow-md transition-shadow">
-                  <CardHeader className="flex flex-row items-center gap-3">
-                    <Pill className="w-6 h-6 text-blue-700" />
-                    <div>
-                      <CardTitle className="text-lg text-blue-900">{rx.name}</CardTitle>
-                      <CardDescription className="text-slate-700">{rx.dose} • {rx.instructions}</CardDescription>
+    <div className="flex flex-col items-center pt-8 min-h-screen bg-slate-50">
+      <div className="w-full max-w-3xl px-4">
+        <Card className="mb-8 shadow-md border-primary/20">
+          <CardHeader>
+            <CardTitle className="text-3xl font-bold text-primary tracking-tight flex items-center gap-2" style={{ fontFamily: 'Roboto, sans-serif' }}>
+              <Pill className="text-primary" /> Prescriptions
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="mb-4 text-secondary-foreground text-lg">Your current prescriptions are listed below. Download e-prescriptions or request refills with a click!</p>
+            <div className="grid gap-6">
+              {mockPrescriptions.map((rx, idx) => (
+                <Card key={idx} className="bg-white/80 border-slate-200 shadow-md hover:shadow-lg transition-shadow">
+                  <CardHeader className="flex-row items-center gap-4">
+                    <div className="flex-1">
+                      <CardTitle className="text-xl font-semibold text-primary" style={{ fontFamily: 'Roboto, sans-serif' }}>
+                        {rx.name} <span className="text-base font-normal text-secondary ml-2">({rx.dosage})</span>
+                      </CardTitle>
+                      <span className="block text-muted-foreground text-sm">Prescribed by: {rx.doctor}</span>
+                      <span className="block text-muted-foreground text-sm">Frequency: {rx.frequency}</span>
+                      <span className="block text-muted-foreground text-sm">Refills left: {rx.refill}</span>
+                      <span className="block text-muted-foreground text-sm">Expires: {rx.expires}</span>
                     </div>
-                  </CardHeader>
-                  <CardContent className="flex flex-col gap-2 mt-2">
-                    <span className="text-slate-600 text-sm flex items-center gap-1"><Clock className="w-4 h-4" /> Last filled: {rx.lastFilled}</span>
-                    <span className="text-slate-600 text-sm flex items-center gap-1">
-                      {rx.status === 'Active' ? <CheckCircle className="w-4 h-4 text-green-600" /> : <Clock className="w-4 h-4 text-slate-400" />}
-                      {rx.status}
-                    </span>
-                    {rx.status === 'Active' && rx.refillsLeft > 0 && (
-                      <Button id={`refill-rx-${rx.id}`} variant="outline" size="sm" className="gap-2 w-max" asChild>
-                        <a href={`/prescriptions/refill/${rx.id}`}>
-                          <RefreshCw className="w-4 h-4" /> Request Refill ({rx.refillsLeft} left)
-                        </a>
+                    {rx.attachment && (
+                      <Button id={`download-prescription-${idx}`} variant="outline" className="border-primary text-primary flex gap-2">
+                        <Download size={18} /> Download
                       </Button>
                     )}
-                  </CardContent>
+                  </CardHeader>
+                  <CardContent />
                 </Card>
-              </motion.div>
-            ))
-          )}
-        </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
-  )
+  );
 }

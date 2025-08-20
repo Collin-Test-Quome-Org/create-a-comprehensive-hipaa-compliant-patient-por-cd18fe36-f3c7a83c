@@ -1,94 +1,63 @@
-// AppointmentsPage.tsx
-import { CalendarDays, Plus, User, CheckCircle, Clock3 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card'
-import { motion } from 'framer-motion'
-import { useState } from 'react'
+import React from 'react';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { CalendarDays, Clock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 const mockAppointments = [
   {
-    id: 'apt-001',
-    date: '2024-06-12',
-    time: '10:00 AM',
-    provider: 'Dr. Kayla Lin',
-    status: 'Confirmed',
-    type: 'Annual Physical',
+    date: '2024-06-10',
+    time: '09:30',
+    doctor: 'Dr. Jamie Carter',
+    department: 'Family Medicine',
+    status: 'Upcoming',
   },
   {
-    id: 'apt-002',
-    date: '2024-05-02',
-    time: '2:30 PM',
-    provider: 'Dr. Kayla Lin',
+    date: '2024-05-20',
+    time: '14:00',
+    doctor: 'Dr. Priya Patel',
+    department: 'Dermatology',
     status: 'Completed',
-    type: 'Lab Results Review',
   },
-  {
-    id: 'apt-003',
-    date: '2024-04-15',
-    time: '9:00 AM',
-    provider: 'Nurse James',
-    status: 'Completed',
-    type: 'Vaccine',
-  }
-]
+];
 
-export const AppointmentsPage = () => {
-  const [appointments] = useState(mockAppointments)
+export function AppointmentsPage() {
+  const navigate = useNavigate();
   return (
-    <div className="bg-slate-50 min-h-screen pb-16">
-      <motion.div className="bg-blue-50 py-8 mb-8 border-b border-blue-100 shadow-sm"
-        initial={{opacity: 0, y: -30}}
-        animate={{opacity: 1, y: 0}}
-      >
-        <div className="container mx-auto px-4 flex flex-col md:flex-row items-center gap-6">
-          <CalendarDays className="w-10 h-10 text-blue-800 mx-auto md:mx-0" />
-          <div className="flex-1">
-            <h1 className="text-2xl md:text-3xl font-bold text-blue-900 font-['Roboto'] mb-1">Appointments</h1>
-            <p className="text-slate-700 font-['Roboto']">Manage your visits, confirm upcoming appointments, and schedule new ones—all in one place.</p>
-          </div>
-          <Button id="new-appointment" variant="outline" className="gap-2 whitespace-nowrap" asChild>
-            <a href="/appointments/new">
-              <Plus className="w-5 h-5" /> New Appointment
-            </a>
-          </Button>
-        </div>
-      </motion.div>
-      <div className="container mx-auto px-4">
-        <div className="grid md:grid-cols-2 gap-6">
-          {appointments.length === 0 ? (
-            <Card className="col-span-2 border-blue-100">
-              <CardHeader>
-                <CardTitle className="text-blue-900">No Appointments Found</CardTitle>
-                <CardDescription className="text-slate-700">You have no upcoming or past appointments.</CardDescription>
-              </CardHeader>
-            </Card>
-          ) : (
-            appointments.map(apt => (
-              <motion.div key={apt.id} initial={{opacity:0, y:10}} animate={{opacity:1, y:0}}>
-                <Card className="border-blue-100 shadow hover:shadow-md transition-shadow">
-                  <CardHeader className="flex flex-row items-center gap-3">
-                    <Clock3 className="w-6 h-6 text-blue-700" />
-                    <div>
-                      <CardTitle className="text-lg text-blue-900">{apt.type}</CardTitle>
-                      <CardDescription className="text-slate-700">{apt.date} at {apt.time}</CardDescription>
+    <div className="flex flex-col items-center pt-8 min-h-screen bg-slate-50">
+      <div className="w-full max-w-3xl px-4">
+        <Card className="mb-8 shadow-md border-primary/20">
+          <CardHeader>
+            <CardTitle className="text-3xl font-bold text-primary tracking-tight flex items-center gap-2" style={{ fontFamily: 'Roboto, sans-serif' }}>
+              <CalendarDays className="text-primary" /> Appointments
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="mb-4 text-secondary-foreground text-lg">Review your upcoming and previous appointments. Need to schedule a new one? You're in the right place!</p>
+            <Button id="book-appointment" className="mb-6" onClick={() => navigate('/calendar')}>Book New Appointment</Button>
+
+            <div className="grid gap-6">
+              {mockAppointments.map((appt, idx) => (
+                <Card key={idx} className="bg-white/80 border-slate-200 shadow-md hover:shadow-lg transition-shadow">
+                  <CardHeader className="flex-row items-center gap-4">
+                    <div className="flex-1">
+                      <CardTitle className="text-xl font-semibold text-primary" style={{ fontFamily: 'Roboto, sans-serif' }}>
+                        {appt.department} <span className="text-base font-normal text-secondary ml-2">with {appt.doctor}</span>
+                      </CardTitle>
+                      <div className="flex items-center gap-3 text-muted-foreground text-sm mt-1">
+                        <CalendarDays size={16} className="mr-1" /> {appt.date}
+                        <Clock size={16} className="mr-1" /> {appt.time}
+                        <span className={`ml-2 px-2 py-0.5 rounded text-xs ${appt.status === 'Upcoming' ? 'bg-primary text-white' : 'bg-slate-200 text-slate-700'}`}>{appt.status}</span>
+                      </div>
                     </div>
                   </CardHeader>
-                  <CardContent className="flex flex-col gap-2 mt-2">
-                    <span className="text-slate-600 text-sm flex items-center gap-1"><User className="w-4 h-4" /> {apt.provider}</span>
-                    <span className="text-slate-600 text-sm flex items-center gap-1">
-                      <CheckCircle className={`w-4 h-4 ${apt.status === 'Confirmed' ? 'text-green-600' : 'text-slate-400'}`} />
-                      {apt.status}
-                    </span>
-                    <Button id={`view-appointment-${apt.id}`} variant="outline" size="sm" className="gap-2 w-max" asChild>
-                      <a href={`/appointments/${apt.id}`}>Details</a>
-                    </Button>
-                  </CardContent>
+                  <CardContent />
                 </Card>
-              </motion.div>
-            ))
-          )}
-        </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
-  )
+  );
 }

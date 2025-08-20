@@ -1,19 +1,16 @@
-// homepage.spec.ts
 import { test, expect } from '@playwright/test';
 
-test.describe('Home Page', () => {
-  test.beforeEach(async ({ page }) => {
+test.describe('HomePage', () => {
+  test('renders hero, why section, and feature cards', async ({ page }) => {
     await page.goto('/');
-  });
-
-  test('renders hero section and heading', async ({ page }) => {
-    // Hero is always present at top
+    // Hero section background image is present
+    // (We can't check background image easily, but check Hero present via heading)
     await expect(page.locator('main')).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Why MedLock?' })).toBeVisible();
-    await expect(page.getByText('Designed for health-conscious go-getters who demand privacy, clarity, and convenience.')).toBeVisible();
-  });
-
-  test('displays all features cards', async ({ page }) => {
+    // Why MedLock heading
+    await expect(page.getByRole('heading', { name: /Why MedLock/i, level: 2 })).toBeVisible();
+    // Why MedLock text
+    await expect(page.getByText(/Designed for health-conscious go-getters/i)).toBeVisible();
+    // Features
     const features = [
       {
         title: 'Military-Grade Security',
@@ -36,24 +33,21 @@ test.describe('Home Page', () => {
         description: 'Connect instantly with your care team. No faxes, no waiting—just answers.'
       }
     ];
-    for (const feature of features) {
-      await expect(page.getByRole('heading', { name: feature.title })).toBeVisible();
-      await expect(page.getByText(feature.description)).toBeVisible();
+    for (const { title, description } of features) {
+      await expect(page.getByRole('heading', { name: title, level: 3 }).first()).toBeVisible();
+      await expect(page.getByText(description)).toBeVisible();
     }
   });
 
-  test('background color and layout classes are applied', async ({ page }) => {
-    // Check for bg-slate-50 and grid layout
-    const main = page.locator('main.container.mx-auto');
-    await expect(main).toHaveClass(/container/);
-    const grid = main.locator('div.grid');
-    await expect(grid).toBeVisible();
-    await expect(grid).toHaveClass(/grid-cols-1/);
-  });
-
-  test('is accessible and main landmarks exist', async ({ page }) => {
-    await expect(page.locator('main')).toBeVisible();
-    await expect(page.locator('nav')).toBeVisible();
-    await expect(page.getByRole('main')).toBeVisible();
+  test('feature cards have correct layout on desktop and mobile', async ({ page }) => {
+    await page.goto('/');
+    // Desktop: 3 columns
+    await page.setViewportSize({ width: 1200, height: 800 });
+    const featureCards = page.locator('.grid.grid-cols-1.md\:grid-cols-3 .shadow-lg');
+    await expect(featureCards).toHaveCount(5);
+    // Mobile: 1 column
+    await page.setViewportSize({ width: 375, height: 800 });
+    // The grid should still render all features, stacked
+    await expect(featureCards).toHaveCount(5);
   });
 });

@@ -1,72 +1,78 @@
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Upload, FileText } from 'lucide-react'
-import { useRef, useState } from 'react'
-
-const mockDocs = [
-  { name: 'Bloodwork_Results.pdf', uploaded: '2024-03-01' },
-  { name: 'Xray_Image_Chest.png', uploaded: '2024-02-18' },
-]
+import { UploadCloud, FileText } from 'lucide-react'
+import { useState } from 'react'
 
 export function FileUploadsPage() {
-  const [docs, setDocs] = useState(mockDocs)
-  const [file, setFile] = useState<File | null>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const [files, setFiles] = useState([
+    { name: 'CBC_Lab_Results.pdf', uploaded: '2024-05-14', size: '185 KB' },
+    { name: 'MRI_Scan_2023.dcm', uploaded: '2024-01-23', size: '2.1 MB' },
+  ])
   const [uploading, setUploading] = useState(false)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const f = e.target.files?.[0]
-    setFile(f || null)
-  }
-  function handleUpload(e: React.FormEvent) {
-    e.preventDefault()
-    if (file) {
-      setUploading(true)
-      setTimeout(() => {
-        setDocs([{ name: file.name, uploaded: new Date().toISOString().slice(0, 10) }, ...docs])
-        setFile(null)
-        setUploading(false)
-        if (inputRef.current) inputRef.current.value = ''
-      }, 900)
+    if (e.target.files && e.target.files.length > 0) {
+      setSelectedFile(e.target.files[0])
     }
   }
 
+  function handleUpload() {
+    if (!selectedFile) return
+    setUploading(true)
+    setTimeout(() => {
+      setFiles([
+        { name: selectedFile.name, uploaded: '2024-06-01', size: `${(selectedFile.size / 1024).toFixed(0)} KB` },
+        ...files,
+      ])
+      setSelectedFile(null)
+      setUploading(false)
+    }, 1200)
+  }
+
   return (
-    <div className="bg-slate-50 min-h-screen py-8">
-      <div className="max-w-xl mx-auto">
-        <Card className="shadow-md">
-          <CardHeader className="flex flex-row items-center gap-3 border-b pb-2">
-            <span className="rounded-full bg-blue-50 p-2 text-blue-700"><Upload className="w-6 h-6" /></span>
-            <CardTitle className="text-blue-900 font-['Roboto']">Upload Medical Documents</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form className="flex gap-2 items-center mb-4" onSubmit={handleUpload}>
-              <input
-                id="file-upload-input"
-                ref={inputRef}
-                type="file"
-                className="block border border-slate-200 rounded px-2 py-1 flex-1"
-                onChange={handleFileChange}
-                aria-label="Upload medical document"
-                disabled={uploading}
-              />
-              <Button id="upload-file-btn" type="submit" disabled={!file || uploading}>{uploading ? 'Uploading...' : 'Upload'}</Button>
-            </form>
-            <div>
-              <div className="font-semibold text-slate-700 mb-2">Recently Uploaded</div>
-              <ul className="space-y-2">
-                {docs.map((doc, i) => (
-                  <li key={doc.name + i} className="flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-blue-600" />
-                    <span className="font-['Roboto'] text-slate-700">{doc.name}</span>
-                    <span className="ml-auto text-xs text-slate-400">{doc.uploaded}</span>
-                  </li>
-                ))}
-                {docs.length === 0 && <li className="text-slate-400">No documents uploaded yet.</li>}
-              </ul>
-            </div>
-          </CardContent>
-        </Card>
+    <div className="max-w-3xl mx-auto px-4 py-12">
+      <h1 className="text-2xl font-bold text-blue-900 mb-6" style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700 }}>Secure Document Uploads</h1>
+      <div className="bg-slate-50 rounded-xl p-6 mb-8 shadow flex flex-col md:flex-row gap-6 items-center">
+        <label className="flex items-center gap-3 cursor-pointer text-blue-700 hover:text-blue-900 transition">
+          <UploadCloud className="w-8 h-8" />
+          <span className="font-bold">Choose File</span>
+          <input id="file-upload-input" type="file" className="hidden" onChange={handleFileChange} />
+        </label>
+        <span className="text-slate-700 text-sm flex-1">
+          {selectedFile ? selectedFile.name : 'No file selected'}
+        </span>
+        <Button id="upload-btn" onClick={handleUpload} disabled={!selectedFile || uploading}>
+          {uploading ? 'Uploading...' : 'Upload'}
+        </Button>
+      </div>
+      <h2 className="font-semibold text-blue-700 mb-4 text-lg">Your Uploaded Documents</h2>
+      <div className="bg-white shadow rounded-lg overflow-x-auto">
+        <table className="w-full min-w-[350px] text-left">
+          <thead>
+            <tr className="bg-blue-50">
+              <th className="py-2 px-4 font-semibold">File</th>
+              <th className="py-2 px-4 font-semibold">Uploaded</th>
+              <th className="py-2 px-4 font-semibold">Size</th>
+              <th className="py-2 px-4 font-semibold">Download</th>
+            </tr>
+          </thead>
+          <tbody>
+            {files.length === 0 ? (
+              <tr>
+                <td colSpan={4} className="py-6 px-4 text-center text-slate-400">No documents uploaded yet.</td>
+              </tr>
+            ) : (
+              files.map((file, idx) => (
+                <tr key={file.name + idx} className="border-t hover:bg-blue-50/50">
+                  <td className="py-2 px-4 flex items-center gap-2"><FileText className="w-4 h-4 text-blue-600" />{file.name}</td>
+                  <td className="py-2 px-4">{file.uploaded}</td>
+                  <td className="py-2 px-4">{file.size}</td>
+                  <td className="py-2 px-4"><Button id={`download-btn-${idx}`} variant="outline" size="sm" disabled>Download</Button></td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   )

@@ -1,66 +1,66 @@
-import React from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Pill, Download } from 'lucide-react';
+import { Card, CardHeader, CardContent } from '@/components/ui/card';
+import { Pill, RefreshCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion';
 
 const mockPrescriptions = [
   {
-    name: 'Atorvastatin',
-    doctor: 'Dr. Alex Chen',
-    dosage: '20mg',
-    frequency: 'Once daily',
-    refill: 2,
-    expires: '2024-08-01',
-    attachment: true,
+    id: 'rx-1',
+    medication: 'Atorvastatin 10mg',
+    directions: 'Take one tablet daily',
+    status: 'Active',
+    refills: 2,
+    lastFilled: '2024-06-05',
   },
   {
-    name: 'Loratadine',
-    doctor: 'Dr. Jamie Carter',
-    dosage: '10mg',
-    frequency: 'As needed for allergies',
-    refill: 0,
-    expires: '2024-05-10',
-    attachment: false,
+    id: 'rx-2',
+    medication: 'Lisinopril 20mg',
+    directions: 'Take one tablet every morning',
+    status: 'Active',
+    refills: 0,
+    lastFilled: '2024-05-15',
   },
 ];
 
 export function PrescriptionsPage() {
   return (
-    <div className="flex flex-col items-center pt-8 min-h-screen bg-slate-50">
-      <div className="w-full max-w-3xl px-4">
-        <Card className="mb-8 shadow-md border-primary/20">
-          <CardHeader>
-            <CardTitle className="text-3xl font-bold text-primary tracking-tight flex items-center gap-2" style={{ fontFamily: 'Roboto, sans-serif' }}>
-              <Pill className="text-primary" /> Prescriptions
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="mb-4 text-secondary-foreground text-lg">Your current prescriptions are listed below. Download e-prescriptions or request refills with a click!</p>
-            <div className="grid gap-6">
-              {mockPrescriptions.map((rx, idx) => (
-                <Card key={idx} className="bg-white/80 border-slate-200 shadow-md hover:shadow-lg transition-shadow">
-                  <CardHeader className="flex-row items-center gap-4">
-                    <div className="flex-1">
-                      <CardTitle className="text-xl font-semibold text-primary" style={{ fontFamily: 'Roboto, sans-serif' }}>
-                        {rx.name} <span className="text-base font-normal text-secondary ml-2">({rx.dosage})</span>
-                      </CardTitle>
-                      <span className="block text-muted-foreground text-sm">Prescribed by: {rx.doctor}</span>
-                      <span className="block text-muted-foreground text-sm">Frequency: {rx.frequency}</span>
-                      <span className="block text-muted-foreground text-sm">Refills left: {rx.refill}</span>
-                      <span className="block text-muted-foreground text-sm">Expires: {rx.expires}</span>
-                    </div>
-                    {rx.attachment && (
-                      <Button id={`download-prescription-${idx}`} variant="outline" className="border-primary text-primary flex gap-2">
-                        <Download size={18} /> Download
-                      </Button>
-                    )}
-                  </CardHeader>
-                  <CardContent />
-                </Card>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+    <div className="max-w-4xl mx-auto px-4 py-10">
+      <motion.h2
+        className="text-3xl md:text-4xl font-bold mb-6 text-[#1d4ed8] font-['Roboto']" style={{fontWeight: 700}}
+        initial={{ opacity: 0, x: -40 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        Prescriptions
+      </motion.h2>
+      <div className="grid gap-6">
+        {mockPrescriptions.map((rx, i) => (
+          <motion.div
+            key={rx.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.1 }}
+          >
+            <Card className="flex flex-row items-center px-4 py-6">
+              <div className="mr-5">
+                <Pill className="w-10 h-10 text-[#1d4ed8]" />
+              </div>
+              <div className="flex-1">
+                <CardHeader className="p-0 mb-2 flex flex-row items-center justify-between">
+                  <span className="text-lg font-semibold font-['Roboto']" style={{fontWeight: 700}}>{rx.medication}</span>
+                  <span className="text-sm text-secondary-foreground">Last filled: {rx.lastFilled}</span>
+                </CardHeader>
+                <CardContent className="p-0 font-['Roboto']" style={{fontWeight: 400}}>
+                  <div>{rx.directions}</div>
+                  <div className="text-xs text-secondary-foreground mt-1">Status: {rx.status} | Refills: {rx.refills}</div>
+                </CardContent>
+              </div>
+              <Button id={`refill-${rx.id}`} variant="outline" size="icon" className="ml-4 group" disabled={rx.refills === 0}>
+                <RefreshCcw className={rx.refills === 0 ? 'text-gray-400' : 'text-[#1d4ed8] group-hover:animate-spin'} />
+              </Button>
+            </Card>
+          </motion.div>
+        ))}
       </div>
     </div>
   );

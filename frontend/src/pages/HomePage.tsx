@@ -1,82 +1,68 @@
-import { Hero } from '@/components/Hero'
-import { DashboardCard } from '@/components/DashboardCard'
-import { motion } from 'framer-motion'
+import { Hero } from '@/components/Hero';
+import { Card, CardContent } from '@/components/ui/card';
+import { CalendarCheck, ClipboardList, MessageCircle, FileText } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const features = [
   {
     title: 'Appointments',
-    description: 'Book, view, and manage your upcoming healthcare visits with confidence.',
-    to: '/appointments',
-    icon: 'appointments',
-    color: 'blue',
+    description: 'Book, track, and manage visits with your care team. Never miss a checkup.',
+    icon: CalendarCheck,
+    href: '/appointments',
   },
   {
     title: 'Medical Records',
-    description: 'Access your secure medical records, lab results, and reports anytime.',
-    to: '/medical-records',
-    icon: 'records',
-    color: 'slate',
+    description: 'Access your entire medical history securely, whenever you need it.',
+    icon: ClipboardList,
+    href: '/medical-records',
   },
   {
     title: 'Prescriptions',
-    description: 'Track medications, renew prescriptions, and stay on top of your wellness.',
-    to: '/prescriptions',
-    icon: 'prescriptions',
-    color: 'blue',
+    description: 'View, refill, and track your medications with one click.',
+    icon: FileText,
+    href: '/prescriptions',
   },
   {
     title: 'Messaging',
-    description: 'Confidentially connect with your care team or ask questions 24/7.',
-    to: '/messaging',
-    icon: 'messaging',
-    color: 'slate',
+    description: 'Chat instantly with your doctors and support staff in a safe space.',
+    icon: MessageCircle,
+    href: '/messaging',
   },
-  {
-    title: 'Notifications',
-    description: 'Get reminders, alerts, and updates tailored to your health journey.',
-    to: '/notifications',
-    icon: 'notifications',
-    color: 'blue',
-  },
-]
+];
 
 export function HomePage() {
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div>
       <Hero />
-      <section className="max-w-6xl mx-auto px-4 py-10">
-        <motion.h2
-          className="text-3xl font-bold text-blue-900 mb-8 text-center"
-          style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700 }}
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.7 }}
-        >
-          Your Secure Health Dashboard
-        </motion.h2>
-        <motion.div
-          className="grid md:grid-cols-3 sm:grid-cols-2 gap-6"
-          initial="hidden"
-          animate="visible"
-          variants={{
-            hidden: {},
-            visible: {
-              transition: {
-                staggerChildren: 0.14,
-              },
-            },
-          }}
-        >
-          {features.map((f, i) => (
-            <motion.div
-              variants={{ hidden: { opacity: 0, y: 40 }, visible: { opacity: 1, y: 0 } }}
-              key={f.title}
-            >
-              <DashboardCard {...f} />
-            </motion.div>
-          ))}
-        </motion.div>
+      <section className="bg-white py-16 px-4">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold text-center text-[#1d4ed8] font-['Roboto']" style={{fontWeight: 700}}>Everything You Need, In One Portal</h2>
+          <p className="text-secondary-foreground text-center text-lg mt-4 mb-10 max-w-2xl mx-auto font-['Roboto']" style={{fontWeight: 400}}>
+            MedShield Portal is the digital fortress for your health journey. Designed for busy, health-conscious individuals who want clarity, connectivity, and complete control.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+            {features.map(({ title, description, icon: Icon, href }, i) => (
+              <motion.div
+                key={title}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+                viewport={{ once: true }}
+              >
+                <Card as="a" href={href} className="group cursor-pointer hover:shadow-xl transition-shadow h-full">
+                  <CardContent className="flex flex-col items-center justify-center py-8">
+                    <div className="bg-[#1d4ed8]/10 rounded-full p-4 mb-4">
+                      <Icon className="text-[#1d4ed8] w-10 h-10" />
+                    </div>
+                    <h3 className="text-xl font-semibold mb-2 font-['Roboto']" style={{fontWeight: 700}}>{title}</h3>
+                    <p className="text-secondary-foreground text-center font-['Roboto']" style={{fontWeight: 400}}>{description}</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
       </section>
     </div>
-  )
+  );
 }

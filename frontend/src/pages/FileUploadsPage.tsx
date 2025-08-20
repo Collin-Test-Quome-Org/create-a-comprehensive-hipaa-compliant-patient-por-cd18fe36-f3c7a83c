@@ -1,104 +1,132 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
+// FileUploadsPage.tsx
+import { useState, useRef } from 'react';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Upload, FileText, XCircle } from 'lucide-react';
+import { UploadCloud, FileText, Trash2 } from 'lucide-react';
+import { motion } from 'framer-motion';
 
-const mockFiles = [
-  { id: 1, name: 'Lab_Results_May2024.pdf', uploaded: '2024-05-28T15:10:00Z' },
-  { id: 2, name: 'MRI_Scan_2023.jpg', uploaded: '2023-12-16T09:30:00Z' },
+const initialFiles = [
+  {
+    name: 'LabReport-June2024.pdf',
+    uploaded: '2024-06-15',
+    url: '#',
+  },
+  {
+    name: 'InsuranceCard.jpg',
+    uploaded: '2024-05-03',
+    url: '#',
+  },
 ];
 
 export function FileUploadsPage() {
-  const [files, setFiles] = useState(mockFiles);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [files, setFiles] = useState(initialFiles);
+  const [selected, setSelected] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     if (e.target.files && e.target.files[0]) {
-      setSelectedFile(e.target.files[0]);
+      setSelected(e.target.files[0]);
     }
   }
 
   function handleUpload() {
-    if (!selectedFile) return;
+    if (!selected) return;
     setUploading(true);
     setTimeout(() => {
-      setFiles((prev) => [
-        ...prev,
-        {
-          id: Date.now(),
-          name: selectedFile.name,
-          uploaded: new Date().toISOString(),
-        },
+      setFiles([
+        ...files,
+        { name: selected.name, uploaded: new Date().toISOString().slice(0, 10), url: '#' },
       ]);
-      setSelectedFile(null);
+      setSelected(null);
       setUploading(false);
-    }, 1200);
+    }, 1000);
   }
 
-  function handleRemove(id: number) {
-    setFiles((prev) => prev.filter((file) => file.id !== id));
+  function handleRemove(name: string) {
+    setFiles(files.filter(f => f.name !== name));
   }
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-[calc(100vh-64px)] bg-slate-50">
-      <div className="max-w-2xl mx-auto py-8">
-        <Card className="bg-white shadow-lg">
-          <CardHeader className="flex flex-row items-center gap-2 border-b pb-2">
-            <Upload className="w-5 h-5 text-[#1d4ed8]" />
-            <CardTitle className="text-[#1d4ed8] font-bold font-['Roboto']">Upload Medical Documents</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-6 mt-4">
-            <div className="flex flex-col md:flex-row items-center gap-4">
-              <Input
-                id="file-upload-input"
-                type="file"
-                onChange={handleFileChange}
-                className="w-full md:w-2/3"
-                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                disabled={uploading}
-              />
-              <Button
-                id="upload-btn"
-                className="bg-[#1d4ed8] text-white font-bold px-6"
-                onClick={handleUpload}
-                disabled={!selectedFile || uploading}
-              >
-                {uploading ? 'Uploading...' : 'Upload'}
-              </Button>
-            </div>
-            {selectedFile && !uploading && (
-              <div className="text-slate-700 text-sm">Selected: {selectedFile.name}</div>
-            )}
-            <div>
-              <h3 className="font-bold text-lg mb-2 font-['Roboto']">Your Uploaded Files</h3>
-              <div className="flex flex-col gap-3">
-                {files.length === 0 && <div className="text-slate-400">No documents uploaded yet.</div>}
-                {files.map((file) => (
-                  <motion.div
-                    key={file.id}
-                    initial={{ opacity: 0, x: -30 }}
+    <main className="max-w-3xl mx-auto py-12 px-4 min-h-screen">
+      <motion.h1
+        className="text-3xl font-bold text-blue-900 mb-8 flex items-center gap-3 font-['Roboto']"
+        initial={{ opacity: 0, x: -40 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.7 }}
+        style={{ fontWeight: 700 }}
+      >
+        <UploadCloud className="w-8 h-8 text-blue-700" /> File Vault
+      </motion.h1>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-blue-800 text-lg font-semibold font-['Roboto']">Upload Medical Documents</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-3 items-end mb-6">
+            <input
+              type="file"
+              id="file-input"
+              ref={fileInputRef}
+              className="hidden"
+              onChange={handleFileChange}
+              aria-label="File uploader"
+            />
+            <Button
+              id="choose-file-btn"
+              type="button"
+              className="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg flex gap-2 items-center"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <FileText className="w-5 h-5" />
+              {selected ? selected.name : 'Choose File'}
+            </Button>
+            <Button
+              id="upload-btn"
+              type="button"
+              className="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg ml-2 flex gap-2 items-center"
+              onClick={handleUpload}
+              disabled={!selected || uploading}
+            >
+              <UploadCloud className="w-5 h-5" /> Upload
+            </Button>
+            {uploading && <span className="ml-3 text-blue-700 animate-pulse">Uploading...</span>}
+          </div>
+          <div>
+            <h2 className="text-blue-800 font-semibold mb-2 font-['Roboto']">Your Documents</h2>
+            {files.length === 0 ? (
+              <div className="text-slate-400 py-8 text-center">No uploads yet.</div>
+            ) : (
+              <ul className="divide-y divide-slate-100">
+                {files.map((f, i) => (
+                  <motion.li
+                    key={f.name}
+                    className="flex items-center gap-4 py-4"
+                    initial={{ opacity: 0, x: 30 }}
                     animate={{ opacity: 1, x: 0 }}
-                    className="flex items-center gap-4 bg-slate-100 rounded-lg px-4 py-2 shadow-sm hover:bg-blue-50 transition group"
+                    transition={{ duration: 0.3, delay: i * 0.07 }}
                   >
-                    <FileText className="w-5 h-5 text-blue-700" />
-                    <span className="font-bold text-blue-900 font-['Roboto']">{file.name}</span>
-                    <span className="ml-auto text-slate-400 text-xs">{new Date(file.uploaded).toLocaleString()}</span>
-                    <Button id={`remove-file-${file.id}`} variant="ghost" size="icon" type="button" className="opacity-60 hover:opacity-100" onClick={() => handleRemove(file.id)}>
-                      <XCircle className="w-5 h-5 text-red-400" />
+                    <FileText className="w-6 h-6 text-blue-700" />
+                    <span className="flex-1 text-blue-900 font-['Roboto']">{f.name}</span>
+                    <span className="text-xs text-slate-400">Uploaded: {f.uploaded}</span>
+                    <a href={f.url} className="text-blue-700 underline text-sm mr-4" download>
+                      Download
+                    </a>
+                    <Button
+                      id={`remove-file-btn-${i}`}
+                      type="button"
+                      className="bg-red-100 text-red-700 hover:bg-red-200 rounded-lg px-2 py-1"
+                      onClick={() => handleRemove(f.name)}
+                    >
+                      <Trash2 className="w-4 h-4" />
                     </Button>
-                  </motion.div>
+                  </motion.li>
                 ))}
-              </div>
-            </div>
-          </CardContent>
-          <CardFooter className="text-xs text-slate-400 flex items-center justify-end pt-3">
-            All files are encrypted and stored securely in compliance with HIPAA.
-          </CardFooter>
-        </Card>
-      </div>
-    </motion.div>
+              </ul>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </main>
   );
 }

@@ -1,79 +1,94 @@
-import { motion } from 'framer-motion';
+// NotificationsPanel.tsx
+import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Bell, CheckCircle2, CalendarDays, FileText, Pill, MessageCircle } from 'lucide-react';
+import { Bell, CheckCircle, XCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
 
-const mockNotifications = [
+const notificationsMock = [
   {
     id: 1,
     type: 'appointment',
-    icon: CalendarDays,
+    icon: <CheckCircle className="text-green-600 w-6 h-6 mr-2" />,
     title: 'Appointment Confirmed',
-    desc: 'Your appointment with Dr. Smith is confirmed for June 5, 2:00 PM.',
-    time: '2024-06-01T10:00:00Z',
+    body: 'Your upcoming appointment with Dr. Morgan is confirmed for June 25 at 2:30 PM.',
+    time: '2024-06-20T15:10:00',
+    read: false,
   },
   {
     id: 2,
-    type: 'record',
-    icon: FileText,
+    type: 'lab',
+    icon: <CheckCircle className="text-blue-700 w-6 h-6 mr-2" />,
     title: 'Lab Results Ready',
-    desc: 'New lab results are available in your medical records.',
-    time: '2024-05-31T13:20:00Z',
+    body: 'New lab results are available in your Medical Records.',
+    time: '2024-06-18T08:34:00',
+    read: false,
   },
   {
     id: 3,
-    type: 'prescription',
-    icon: Pill,
-    title: 'Prescription Refill Approved',
-    desc: 'Your refill for Atorvastatin has been approved.',
-    time: '2024-05-29T17:30:00Z',
-  },
-  {
-    id: 4,
-    type: 'message',
-    icon: MessageCircle,
-    title: 'New Message from Dr. Lee',
-    desc: 'You have a new secure message from Dr. Lee.',
-    time: '2024-05-29T18:25:00Z',
-  },
-  {
-    id: 5,
-    type: 'general',
-    icon: CheckCircle2,
-    title: 'Profile Updated',
-    desc: 'Your account settings were updated successfully.',
-    time: '2024-05-28T09:10:00Z',
+    type: 'refill',
+    icon: <XCircle className="text-slate-400 w-6 h-6 mr-2" />,
+    title: 'Prescription Expired',
+    body: 'Your prescription for Atorvastatin has expired. Please contact your provider.',
+    time: '2024-06-15T16:01:00',
+    read: true,
   },
 ];
 
 export function NotificationsPanel() {
+  const [notifications, setNotifications] = useState(notificationsMock);
+
+  function markAllRead() {
+    setNotifications(notifications.map(n => ({ ...n, read: true })));
+  }
+
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-[calc(100vh-64px)] bg-slate-50">
-      <div className="max-w-2xl mx-auto py-8">
-        <Card className="bg-white shadow-lg">
-          <CardHeader className="flex flex-row items-center gap-2 border-b pb-2">
-            <Bell className="w-5 h-5 text-[#1d4ed8]" />
-            <CardTitle className="text-[#1d4ed8] font-bold font-['Roboto']">Notifications</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-4 mt-4">
-            {mockNotifications.map((notif, idx) => (
-              <motion.div
-                key={notif.id}
+    <main className="max-w-2xl mx-auto py-12 px-4 min-h-screen">
+      <motion.h1
+        className="text-3xl font-bold text-blue-900 mb-8 flex items-center gap-3 font-['Roboto']"
+        initial={{ opacity: 0, x: -40 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.7 }}
+        style={{ fontWeight: 700 }}
+      >
+        <Bell className="w-8 h-8 text-blue-700" /> Notifications
+      </motion.h1>
+      <Card>
+        <CardHeader className="flex flex-row justify-between items-center">
+          <CardTitle className="text-blue-800 font-['Roboto'] text-lg" style={{ fontWeight: 700 }}>Latest Updates</CardTitle>
+          <button
+            id="mark-all-read-btn"
+            className="text-blue-700 text-sm hover:underline font-semibold"
+            onClick={markAllRead}
+          >
+            Mark all as read
+          </button>
+        </CardHeader>
+        <CardContent>
+          <ul className="divide-y divide-slate-200">
+            {notifications.length === 0 && (
+              <li className="py-10 text-center text-slate-400 text-lg">No notifications yet.</li>
+            )}
+            {notifications.map((n, i) => (
+              <motion.li
+                key={n.id}
+                className={`flex items-start gap-3 py-5 ${n.read ? 'bg-slate-50' : 'bg-blue-50 font-bold'} rounded-lg px-2 mb-2`}
                 initial={{ opacity: 0, x: 30 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: idx * 0.1 }}
-                className="rounded-lg border border-slate-200 p-4 flex items-center gap-4 bg-slate-50 hover:bg-blue-50 transition"
+                transition={{ duration: 0.4, delay: i * 0.08 }}
+                aria-live={n.read ? 'polite' : 'assertive'}
+                id={`notification-${n.id}`}
               >
-                <notif.icon className="w-8 h-8 text-[#1d4ed8]" />
-                <div>
-                  <div className="font-bold text-base text-blue-900 font-['Roboto']">{notif.title}</div>
-                  <div className="text-gray-700 font-['Roboto']">{notif.desc}</div>
-                  <div className="text-sm text-slate-400 mt-1">{new Date(notif.time).toLocaleString()}</div>
+                <span>{n.icon}</span>
+                <div className="flex-1">
+                  <div className="text-blue-900 text-base font-semibold font-['Roboto']">{n.title}</div>
+                  <div className="text-slate-700 text-sm">{n.body}</div>
+                  <div className="text-xs text-slate-400 mt-1">{new Date(n.time).toLocaleString()}</div>
                 </div>
-              </motion.div>
+              </motion.li>
             ))}
-          </CardContent>
-        </Card>
-      </div>
-    </motion.div>
+          </ul>
+        </CardContent>
+      </Card>
+    </main>
   );
 }

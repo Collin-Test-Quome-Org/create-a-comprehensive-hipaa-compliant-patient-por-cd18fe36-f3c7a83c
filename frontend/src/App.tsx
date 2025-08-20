@@ -1,31 +1,34 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Navigation } from '@/components/Navigation';
-import { HomePage } from '@/pages/HomePage';
-import { AboutPage } from '@/pages/AboutPage';
-import { ContactPage } from '@/pages/ContactPage';
-import { PortalPage } from '@/pages/PortalPage';
-import { LoginPage } from '@/pages/LoginPage';
-import { SignupPage } from '@/pages/SignupPage';
-import { Providers } from './Providers';
+// App.tsx
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { Navigation } from '@/components/Navigation'
+import { HomePage } from '@/pages/HomePage'
+import { LoginPage } from '@/pages/LoginPage'
+import { SignupPage } from '@/pages/SignupPage'
+import { MedicalRecordsPage } from '@/pages/MedicalRecordsPage'
+import { AppointmentsPage } from '@/pages/AppointmentsPage'
+import { PrescriptionsPage } from '@/pages/PrescriptionsPage'
+import { MessagingPage } from '@/pages/MessagingPage'
+import { NotificationsPanel } from '@/pages/NotificationsPanel'
+import { FileUploadsPage } from '@/pages/FileUploadsPage'
+import { Providers } from './Providers'
 
-export function App() {
+export const App = () => {
   return (
-    <Providers>
-      <Router>
-        <div className="min-h-screen flex flex-col bg-gray-50">
-          <Navigation />
-          <main className="flex-1">
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/about" element={<AboutPage />} />
-              <Route path="/contact" element={<ContactPage />} />
-              <Route path="/portal" element={<PortalPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/signup" element={<SignupPage />} />
-            </Routes>
-          </main>
-        </div>
-      </Router>
-    </Providers>
-  );
+    <Router>
+      <Providers>
+        <Navigation />
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/records" element={<MedicalRecordsPage />} />
+          <Route path="/appointments" element={<AppointmentsPage />} />
+          <Route path="/prescriptions" element={<PrescriptionsPage />} />
+          <Route path="/messages" element={<MessagingPage />} />
+          <Route path="/notifications" element={<NotificationsPanel />} />
+          <Route path="/uploads" element={<FileUploadsPage />} />
+        </Routes>
+      </Providers>
+    </Router>
+  )
 }

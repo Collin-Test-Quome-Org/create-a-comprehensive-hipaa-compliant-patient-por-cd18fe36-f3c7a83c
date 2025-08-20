@@ -1,47 +1,32 @@
-import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
+// Hero.tsx - Big marketing hero slider
+import { Button } from '@/components/ui/button'
+import { motion } from 'framer-motion'
 
-export function Hero() {
+export const Hero = () => {
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 40 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8, ease: 'easeOut' }}
-      className="w-full h-[28rem] md:h-[32rem] relative mb-8 md:mb-16 flex items-center justify-center"
-    >
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url('/branding/assets/hero-0.png')` }}
+    <section className="relative w-full bg-cover bg-center min-h-[28rem] flex flex-col justify-center" style={{ backgroundImage: `url('/branding/assets/hero-0.png')` }}>
+      <div className="absolute inset-0 bg-black/60 z-0"/>
+      <motion.div
+        className="relative z-10 max-w-4xl mx-auto px-6 py-16 flex flex-col items-center text-center"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7 }}
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/70 via-blue-800/60 to-blue-500/40" />
-      </div>
-      <div className="relative z-10 container mx-auto px-6 flex flex-col items-center justify-center text-center">
-        <motion.h1
-          className="text-4xl md:text-5xl font-bold font-['Roboto'] text-white drop-shadow-lg mb-5"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.7 }}
-        >
-          HIPAA Secure Patient Portal
-        </motion.h1>
-        <motion.p
-          className="max-w-2xl text-lg md:text-xl font-['Roboto'] text-blue-100 mb-8"
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.45, duration: 0.6 }}
-        >
-          Welcome to <span className="font-bold text-white">PortalGuard</span>—your trusted digital health companion. Effortlessly access your medical records, manage appointments, and connect securely with your care team. Your privacy, our promise.
-        </motion.p>
-        <div className="flex flex-wrap gap-4 justify-center">
-          <Link to="/portal">
-            <Button id="hero-get-started-btn" className="bg-[#1d4ed8] text-white px-8 py-3 text-lg font-semibold rounded-lg shadow-lg hover:bg-[#2563eb] transition">Get Started</Button>
-          </Link>
-          <Link to="/about">
-            <Button id="hero-learn-more-btn" variant="outline" className="border-white/50 text-white px-8 py-3 text-lg font-semibold rounded-lg hover:bg-blue-900/30">Learn More</Button>
-          </Link>
+        <h1 className="text-5xl md:text-6xl font-bold text-white mb-4 font-['Roboto']" style={{ fontWeight: 700 }}>
+          Welcome to MedLock Portal
+        </h1>
+        <p className="text-xl md:text-2xl text-slate-200 font-['Roboto'] mb-8 max-w-2xl">
+          Secure. Simple. Seamless. <br/>Effortlessly manage your medical records, appointments, prescriptions, and connect with your care team—all in one protected hub.
+        </p>
+        <div className="flex gap-4 justify-center">
+          <Button asChild id="cta-signup" className="text-lg px-8 py-5 font-semibold bg-blue-700 hover:bg-blue-800">
+            <a href="/signup">Join Now</a>
+          </Button>
+          <Button asChild variant="outline" id="cta-login" className="text-lg px-8 py-5 font-semibold border-white text-white hover:bg-white/10">
+            <a href="/login">Sign In</a>
+          </Button>
         </div>
-      </div>
-    </motion.section>
-  );
+      </motion.div>
+    </section>
+  )
 }

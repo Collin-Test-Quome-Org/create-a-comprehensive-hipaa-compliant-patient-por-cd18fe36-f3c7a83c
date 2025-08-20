@@ -1,42 +1,33 @@
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export function Hero() {
   return (
-    <section
-      className="relative w-full h-[30rem] flex items-center justify-center overflow-hidden"
-      style={{ backgroundImage: "url('/branding/assets/hero-0.png')" }}
-    >
-      <div className="absolute inset-0 bg-black bg-opacity-50" />
+    <section className="relative w-full min-h-[28rem] flex items-center justify-center overflow-hidden">
+      <div
+        style={{backgroundImage: "url('/branding/assets/hero-0.png')"}}
+        className="absolute top-0 left-0 w-full h-full bg-cover bg-center z-0"
+      />
+      <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 z-10" />
       <motion.div
-        className="relative z-10 flex flex-col items-center justify-center text-center px-4"
-        initial={{ opacity: 0, y: 40 }}
+        className="relative z-20 flex flex-col items-center justify-center text-center px-4"
+        initial={{ opacity: 0, y: 60 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
+        transition={{ duration: 0.8, ease: 'easeOut' }}
       >
-        <img src="/branding/assets/logo-1.png" className="w-24 h-24 mb-6" />
-        <h1
-          className="text-white text-4xl md:text-5xl font-bold leading-tight mb-4"
-          style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700 }}
-        >
-          Welcome to BlueShield Health Portal
+        <h1 className="text-white text-5xl font-bold mb-4 font-['Roboto']" style={{fontWeight: 700}}>
+          Welcome to Medivault
         </h1>
-        <p
-          className="text-slate-100 text-lg md:text-2xl mb-8 max-w-2xl"
-          style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 400 }}
-        >
-          Securely access your medical records, appointments, and prescriptions—all in one calming, protected place. Because your health journey deserves peace of mind.
+        <p className="text-slate-100 text-xl mb-6 max-w-2xl font-['Roboto']" style={{fontWeight: 400}}>
+          Where your health meets security. Seamlessly manage appointments, records, and communication—all in one encrypted portal. We keep your care confidential, always.
         </p>
         <div className="flex gap-4">
-          <Button id="cta-get-started" size="lg" asChild>
-            <Link to="/signup" className="flex items-center gap-2">
-              Get Started <ArrowRight className="w-4 h-4" />
-            </Link>
+          <Button asChild id="get-started-cta" size="lg" className="bg-blue-700 hover:bg-blue-800 text-white text-lg shadow-lg">
+            <Link to="/signup">Get Started</Link>
           </Button>
-          <Button id="cta-login" variant="outline" size="lg" asChild>
-            <Link to="/login">Login</Link>
+          <Button asChild id="learn-more-cta" variant="outline" size="lg" className="text-lg border-white text-white hover:bg-blue-700/10">
+            <Link to="/about">Learn More</Link>
           </Button>
         </div>
       </motion.div>

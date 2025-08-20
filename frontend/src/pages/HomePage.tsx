@@ -1,68 +1,62 @@
 import { Hero } from '@/components/Hero';
-import { Card, CardContent } from '@/components/ui/card';
-import { CalendarCheck, ClipboardList, MessageCircle, FileText } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
-
-const features = [
-  {
-    title: 'Appointments',
-    description: 'Book, track, and manage visits with your care team. Never miss a checkup.',
-    icon: CalendarCheck,
-    href: '/appointments',
-  },
-  {
-    title: 'Medical Records',
-    description: 'Access your entire medical history securely, whenever you need it.',
-    icon: ClipboardList,
-    href: '/medical-records',
-  },
-  {
-    title: 'Prescriptions',
-    description: 'View, refill, and track your medications with one click.',
-    icon: FileText,
-    href: '/prescriptions',
-  },
-  {
-    title: 'Messaging',
-    description: 'Chat instantly with your doctors and support staff in a safe space.',
-    icon: MessageCircle,
-    href: '/messaging',
-  },
-];
+import { Link } from 'react-router-dom';
+import { CheckCircle, ShieldCheck } from 'lucide-react';
 
 export function HomePage() {
   return (
-    <div>
+    <div className="w-full min-h-screen bg-gradient-to-b from-white via-slate-50 to-blue-50">
       <Hero />
-      <section className="bg-white py-16 px-4">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-center text-[#1d4ed8] font-['Roboto']" style={{fontWeight: 700}}>Everything You Need, In One Portal</h2>
-          <p className="text-secondary-foreground text-center text-lg mt-4 mb-10 max-w-2xl mx-auto font-['Roboto']" style={{fontWeight: 400}}>
-            MedShield Portal is the digital fortress for your health journey. Designed for busy, health-conscious individuals who want clarity, connectivity, and complete control.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-            {features.map(({ title, description, icon: Icon, href }, i) => (
-              <motion.div
-                key={title}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                viewport={{ once: true }}
-              >
-                <Card as="a" href={href} className="group cursor-pointer hover:shadow-xl transition-shadow h-full">
-                  <CardContent className="flex flex-col items-center justify-center py-8">
-                    <div className="bg-[#1d4ed8]/10 rounded-full p-4 mb-4">
-                      <Icon className="text-[#1d4ed8] w-10 h-10" />
-                    </div>
-                    <h3 className="text-xl font-semibold mb-2 font-['Roboto']" style={{fontWeight: 700}}>{title}</h3>
-                    <p className="text-secondary-foreground text-center font-['Roboto']" style={{fontWeight: 400}}>{description}</p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <main className="max-w-5xl mx-auto px-4 py-16">
+        <section className="flex flex-col md:flex-row gap-14 items-center md:items-stretch">
+          <motion.div
+            className="flex-1 mb-10 md:mb-0"
+            initial={{ opacity: 0, x: -40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-2xl font-bold mb-4 text-blue-900" style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 700 }}>
+              All Your Health Info, One Trusted Portal
+            </h2>
+            <ul className="space-y-4">
+              <li className="flex items-center gap-3 text-slate-700">
+                <CheckCircle className="text-blue-600 w-5 h-5" />
+                Access your records and prescriptions instantly
+              </li>
+              <li className="flex items-center gap-3 text-slate-700">
+                <CheckCircle className="text-blue-600 w-5 h-5" />
+                Book, manage, and sync appointments with ease
+              </li>
+              <li className="flex items-center gap-3 text-slate-700">
+                <CheckCircle className="text-blue-600 w-5 h-5" />
+                Direct, private chat with your care team
+              </li>
+              <li className="flex items-center gap-3 text-slate-700">
+                <CheckCircle className="text-blue-600 w-5 h-5" />
+                Upload/share files securely
+              </li>
+            </ul>
+            <Button id="learn-more" asChild className="mt-8">
+              <Link to="/signup">Experience BlueShield Now</Link>
+            </Button>
+          </motion.div>
+          <motion.div
+            className="flex-1 flex flex-col items-center justify-center"
+            initial={{ opacity: 0, x: 40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7 }}
+            viewport={{ once: true }}
+          >
+            <div className="bg-slate-100 rounded-2xl p-6 w-full max-w-xs shadow-lg flex flex-col items-center">
+              <ShieldCheck className="w-12 h-12 text-blue-700 mb-2" />
+              <p className="text-slate-800 text-lg font-medium text-center mb-2">"My health info feels protected and always at my fingertips!"</p>
+              <span className="text-blue-600 text-xs">— A BlueShield Patient</span>
+            </div>
+          </motion.div>
+        </section>
+      </main>
     </div>
   );
 }

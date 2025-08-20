@@ -1,6 +1,5 @@
-import React from 'react';
+import { MockAuthProvider } from '@/components/MockAuthContext';
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  // Add any context providers here in the future.
-  return <>{children}</>;
+  return <MockAuthProvider>{children}</MockAuthProvider>;
 }

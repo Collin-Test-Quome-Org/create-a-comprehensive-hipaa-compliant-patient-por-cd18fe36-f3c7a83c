@@ -1,81 +1,87 @@
+// homepage.spec.ts
 import { test, expect } from '@playwright/test';
 
-test.describe('HomePage Functionality', () => {
+test.describe('Home Page', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
   });
 
-  test('renders hero section with welcome message and CTAs', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: 'Welcome to SecureMed Portal' })).toBeVisible();
-    await expect(page.getByText('Empowering you to access, manage, and share your health data with confidence. Trust, safety, and seamless care for every step of your journey.')).toBeVisible();
-    // Hero background image
-    await expect(page.locator('div.bg-cover')).toHaveCSS('background-image', /hero-0.png/);
-    // Logo in hero
-    await expect(page.locator('img[src="/branding/assets/logo-0.png"]')).toBeVisible();
-    // CTAs
-    await expect(page.locator('#cta-signup')).toBeVisible();
-    await expect(page.locator('#cta-login')).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Get Started' })).toHaveAttribute('href', '/signup');
-    await expect(page.getByRole('link', { name: 'Sign In' })).toHaveAttribute('href', '/login');
+  test('renders hero section and heading', async ({ page }) => {
+    // The Hero component background image
+    const heroBg = page.locator('div[style*="/branding/assets/hero-0.png"]');
+    await expect(heroBg).toBeVisible();
+    // Main heading
+    await expect(page.getByRole('heading', { name: /Medivault: Healthcare in Your Hands/i })).toBeVisible();
   });
 
-  test('CTA buttons navigate to signup and login', async ({ page }) => {
-    await page.locator('#cta-signup').click();
-    await expect(page).toHaveURL(/\/signup$/);
-    await page.goto('/');
-    await page.locator('#cta-login').click();
-    await expect(page).toHaveURL(/\/login$/);
-  });
-
-  test('shows main section with subtitle', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: 'All Your Care, One Portal' })).toBeVisible();
-    await expect(page.getByText('SecureMed Portal is your digital front door to healthcare: view medical records, manage appointments, chat with providers, and handle prescriptions—all in a single, secure place.')).toBeVisible();
-  });
-
-  test('shows four feature cards with correct content and links', async ({ page }) => {
+  test('renders all feature cards with correct titles and descriptions', async ({ page }) => {
     const features = [
-      { title: 'Appointments', link: '/appointments', desc: 'Book, view, or manage your upcoming visits with ease.' },
-      { title: 'Records', link: '/medical-records', desc: 'Access your personal health records securely and instantly.' },
-      { title: 'Prescriptions', link: '/prescriptions', desc: 'View prescriptions, request refills, and track medication.' },
-      { title: 'Messaging', link: '/messaging', desc: 'Message your care team for timely answers and support.' }
+      {
+        title: 'Effortless Appointments',
+        desc: 'Book, track, and manage appointments with a tap. Stay in sync—no more missed visits.',
+        to: '/appointments',
+      },
+      {
+        title: 'Medical Records',
+        desc: 'Access your health history anywhere. Secure, searchable, and always at your fingertips.',
+        to: '/medical-records',
+      },
+      {
+        title: 'Prescriptions Portal',
+        desc: 'Manage scripts, request refills, and receive timely reminders with total confidence.',
+        to: '/prescriptions',
+      },
+      {
+        title: 'Care Team Messaging',
+        desc: 'Direct chat with your healthcare team. Your questions answered, your privacy protected.',
+        to: '/messaging',
+      },
+      {
+        title: 'File Vault',
+        desc: 'Upload and store important documents. Everything in one place—secure and organized.',
+        to: '/file-uploads',
+      },
     ];
     for (const feature of features) {
       await expect(page.getByRole('heading', { name: feature.title })).toBeVisible();
       await expect(page.getByText(feature.desc)).toBeVisible();
-      // Feature link
-      const linkId = `feature-${feature.title.toLowerCase()}-link`;
-      await expect(page.locator(`#${linkId}`)).toBeVisible();
-      await expect(page.locator(`#${linkId}`).getByRole('link')).toHaveAttribute('href', feature.link);
+      // The card is a link to the right page
+      const cardLink = page.getByRole('link', { name: new RegExp(feature.title) });
+      await expect(cardLink).toHaveAttribute('href', feature.to);
     }
   });
 
-  test('feature card links navigate to correct pages', async ({ page }) => {
-    // Appointments
-    await page.locator('#feature-appointments-link').getByRole('link').click();
+  test('feature cards navigate to intended routes', async ({ page }) => {
+    await page.getByRole('link', { name: /Effortless Appointments/ }).click();
     await expect(page).toHaveURL(/\/appointments$/);
     await page.goto('/');
-    // Records
-    await page.locator('#feature-records-link').getByRole('link').click();
-    await expect(page).toHaveURL(/medical-records/);
+    // Note: HomePage uses /medical-records but navigation bar uses /records
+    // Clicking "Medical Records" card should navigate to /medical-records
+    await page.getByRole('link', { name: /Medical Records/ }).click();
+    await expect(page).toHaveURL(/\/medical-records$/);
     await page.goto('/');
-    // Prescriptions
-    await page.locator('#feature-prescriptions-link').getByRole('link').click();
+    await page.getByRole('link', { name: /Prescriptions Portal/ }).click();
     await expect(page).toHaveURL(/\/prescriptions$/);
     await page.goto('/');
-    // Messaging
-    await page.locator('#feature-messaging-link').getByRole('link').click();
+    await page.getByRole('link', { name: /Care Team Messaging/ }).click();
     await expect(page).toHaveURL(/\/messaging$/);
+    await page.goto('/');
+    await page.getByRole('link', { name: /File Vault/ }).click();
+    await expect(page).toHaveURL(/\/file-uploads$/);
   });
 
-  test('accessibility: main headings and buttons are focusable', async ({ page }) => {
-    await page.keyboard.press('Tab'); // Nav
-    await page.keyboard.press('Tab'); // Next nav item
-    // Tab to main content
-    while (!(await page.evaluate(() => document.activeElement && document.activeElement.id === 'cta-signup'))) {
-      await page.keyboard.press('Tab');
+  test('basic accessibility: headings and links', async ({ page }) => {
+    // Main heading
+    await expect(page.getByRole('heading', { name: /Medivault: Healthcare in Your Hands/i })).toBeVisible();
+    // All feature cards are links
+    for (const cardTitle of [
+      'Effortless Appointments',
+      'Medical Records',
+      'Prescriptions Portal',
+      'Care Team Messaging',
+      'File Vault',
+    ]) {
+      await expect(page.getByRole('link', { name: new RegExp(cardTitle) })).toBeVisible();
     }
-    await expect(page.locator('#cta-signup')).toBeFocused();
-    await page.keyboard.press('Tab');
-    await expect(page.locator('#cta-login')).toBeFocused();
   });
 });

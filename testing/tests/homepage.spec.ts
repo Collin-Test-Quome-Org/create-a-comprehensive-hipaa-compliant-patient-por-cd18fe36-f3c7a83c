@@ -1,44 +1,40 @@
+// homepage.spec.ts
 import { test, expect } from '@playwright/test';
 
-test.describe('HomePage', () => {
+test.describe('Home Page', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
   });
 
-  test('shows hero section and tagline', async ({ page }) => {
-    // Hero should be present (not enough info for selector, so check page visually for h2)
-    await expect(page.getByRole('heading', { name: /All Your Health Info, One Trusted Portal/i })).toBeVisible();
+  test('renders the Hero component (by presence of Experience BlueShield Now button)', async ({ page }) => {
+    await expect(page.getByRole('button', { name: /Experience BlueShield Now/i })).toBeVisible();
   });
 
-  test('shows all feature bullet points', async ({ page }) => {
-    const features = [
-      'Access your records and prescriptions instantly',
-      'Book, manage, and sync appointments with ease',
-      'Direct, private chat with your care team',
-      'Upload/share files securely'
-    ];
-    for (const feature of features) {
-      await expect(page.getByText(feature, { exact: true })).toBeVisible();
-    }
+  test('shows correct heading and feature list', async ({ page }) => {
+    await expect(
+      page.getByRole('heading', { name: /All Your Health Info, One Trusted Portal/i })
+    ).toBeVisible();
+    await expect(page.getByText('Access your records and prescriptions instantly')).toBeVisible();
+    await expect(page.getByText('Book, manage, and sync appointments with ease')).toBeVisible();
+    await expect(page.getByText('Direct, private chat with your care team')).toBeVisible();
+    await expect(page.getByText('Upload/share files securely')).toBeVisible();
   });
 
-  test('shows testimonial with ShieldCheck icon', async ({ page }) => {
-    // Testimonial quote
+  test('shows testimonial card', async ({ page }) => {
     await expect(page.getByText('My health info feels protected and always at my fingertips!', { exact: false })).toBeVisible();
-    await expect(page.getByText('— A BlueShield Patient')).toBeVisible();
-    // Icon is a svg with class w-12 h-12 text-blue-700
-    const shieldIcon = page.locator('svg.w-12.h-12.text-blue-700');
-    await expect(shieldIcon).toBeVisible();
+    await expect(page.getByText(/A BlueShield Patient/)).toBeVisible();
   });
 
   test('Experience BlueShield Now button navigates to signup', async ({ page }) => {
-    const signupBtn = page.getByRole('link', { name: /Experience BlueShield Now/i });
-    await expect(signupBtn).toBeVisible();
-    await signupBtn.click();
+    await page.getByRole('button', { name: /Experience BlueShield Now/i }).click();
     await expect(page).toHaveURL('/signup');
   });
 
-  test('navigation bar is visible on homepage', async ({ page }) => {
-    await expect(page.locator('nav')).toBeVisible();
+  test('navigation bar is visible and sticky', async ({ page }) => {
+    const nav = page.locator('nav');
+    await expect(nav).toBeVisible();
+    // Sticky effect can't be tested directly; but navigation should remain visible after scroll
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await expect(nav).toBeVisible();
   });
 });

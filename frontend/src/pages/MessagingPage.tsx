@@ -1,135 +1,142 @@
-// MessagingPage.tsx
-import { useState } from 'react'
-import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { MessageCircle, Send } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Send, MessageCircle, Lock } from 'lucide-react';
 
-const MOCK_MESSAGES = [
+const mockThreads = [
   {
     id: '1',
-    from: 'Dr. Miles',
-    to: 'You',
-    content: 'Hi! Your recent lab results look great. Let me know if you have questions.',
-    date: '2024-06-04',
-    unread: false
+    subject: 'Upcoming Appointment',
+    messages: [
+      { sender: 'Dr. Smith', content: 'Looking forward to seeing you next week!', date: '2024-06-01T10:00:00Z' },
+      { sender: 'You', content: 'Thank you, see you then!', date: '2024-06-01T10:05:00Z' },
+    ],
   },
   {
     id: '2',
-    from: 'You',
-    to: 'Dr. Miles',
-    content: 'Thank you! Can you clarify cholesterol numbers?',
-    date: '2024-06-04',
-    unread: false
+    subject: 'Lab Results',
+    messages: [
+      { sender: 'Dr. Lee', content: 'Your recent labs are in and look great.', date: '2024-05-29T14:45:00Z' },
+      { sender: 'You', content: 'Wonderful news, thank you!', date: '2024-05-29T15:00:00Z' },
+    ],
   },
-  {
-    id: '3',
-    from: 'Dr. Miles',
-    to: 'You',
-    content: 'Of course! Your LDL is below recommended, which is excellent.',
-    date: '2024-06-05',
-    unread: true
-  },
-]
+];
 
-export const MessagingPage = () => {
-  const [messages, setMessages] = useState(MOCK_MESSAGES)
-  const [newMessage, setNewMessage] = useState('')
-  const [sending, setSending] = useState(false)
-  
-  const handleSend = () => {
-    if (!newMessage.trim()) return
-    setSending(true)
-    setTimeout(() => {
-      setMessages([
-        ...messages,
-        {
-          id: String(messages.length + 1),
-          from: 'You',
-          to: 'Dr. Miles',
-          content: newMessage,
-          date: new Date().toISOString().slice(0, 10),
-          unread: false
-        }
-      ])
-      setNewMessage('')
-      setSending(false)
-    }, 700)
+export function MessagingPage() {
+  const [selectedThread, setSelectedThread] = useState(mockThreads[0]);
+  const [message, setMessage] = useState('');
+  const [threads, setThreads] = useState(mockThreads);
+
+  function handleSend() {
+    if (!message.trim()) return;
+    setThreads((prev) =>
+      prev.map((thread) =>
+        thread.id === selectedThread.id
+          ? {
+              ...thread,
+              messages: [
+                ...thread.messages,
+                {
+                  sender: 'You',
+                  content: message,
+                  date: new Date().toISOString(),
+                },
+              ],
+            }
+          : thread
+      )
+    );
+    setSelectedThread((prev) => ({
+      ...prev,
+      messages: [
+        ...prev.messages,
+        { sender: 'You', content: message, date: new Date().toISOString() },
+      ],
+    }));
+    setMessage('');
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-3xl min-h-screen">
-      <motion.div initial={{opacity: 0, y: 20}} animate={{opacity: 1, y: 0}}>
-        <Card className="shadow-lg border-blue-100 bg-white">
-          <CardHeader className="flex flex-row items-center gap-3">
-            <MessageCircle className="w-7 h-7 text-blue-700"/>
-            <div>
-              <CardTitle className="font-bold text-2xl text-blue-900 font-['Roboto']">Secure Messaging</CardTitle>
-              <CardDescription className="text-slate-700">Send and receive encrypted messages with your care team—no waiting, no phone tag.</CardDescription>
-            </div>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-[calc(100vh-64px)] bg-slate-50">
+      <div className="max-w-5xl mx-auto py-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Sidebar: Thread List */}
+        <Card className="col-span-1 md:col-span-1 bg-white shadow-md h-fit">
+          <CardHeader className="flex flex-row items-center gap-2 border-b pb-2">
+            <MessageCircle className="w-5 h-5 text-[#1d4ed8]" />
+            <CardTitle className="text-[#1d4ed8] font-bold font-['Roboto']">Inbox</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="flex flex-col gap-4 mb-4 max-h-96 overflow-y-auto" data-testid="message-thread">
-              {messages.map((msg, i) => (
-                <motion.div
-                  key={msg.id}
-                  initial={{ opacity: 0, x: msg.from === 'You' ? 50 : -50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.1 + i * 0.08 }}
-                  className={
-                    'flex flex-col max-w-[80%] ' +
-                    (msg.from === 'You' ? 'self-end items-end' : 'self-start items-start')
-                  }
-                >
-                  <div className={
-                    'rounded-lg px-4 py-2 mb-1 ' +
-                    (msg.from === 'You' ? 'bg-blue-100 text-blue-900' : 'bg-slate-100 text-slate-700')
-                  }>
-                    <span>{msg.content}</span>
-                  </div>
-                  <span className="text-xs text-slate-500">
-                    {msg.from === 'You' ? 'You' : msg.from} • {msg.date}
-                  </span>
-                </motion.div>
-              ))}
-              {messages.length === 0 && (
-                <div className="text-center text-slate-500 py-12">No messages yet. Start a conversation with your care team!</div>
-              )}
-            </div>
-            <form
-              className="flex flex-col gap-2 mt-6"
-              onSubmit={e => { e.preventDefault(); handleSend(); }}
-              aria-label="Send a secure message"
-            >
-              <Textarea
-                id="message-input"
-                value={newMessage}
-                onChange={e => setNewMessage(e.target.value)}
-                placeholder="Type your message..."
-                rows={3}
-                required
-                className="font-['Roboto']"
-                disabled={sending}
-                aria-label="Message input"
-              />
-              <div className="flex justify-end">
-                <Button
-                  id="send-message-btn"
-                  type="submit"
-                  className="gap-2 font-bold"
-                  aria-label="Send message"
-                  disabled={sending || !newMessage.trim()}
-                >
-                  <Send className="w-4 h-4" />
-                  {sending ? 'Sending...' : 'Send'}
-                </Button>
-              </div>
-            </form>
+          <CardContent className="flex flex-col gap-2">
+            {threads.map((thread) => (
+              <Button
+                key={thread.id}
+                id={`thread-${thread.id}`}
+                variant={selectedThread.id === thread.id ? 'secondary' : 'ghost'}
+                className="justify-start w-full mb-2"
+                onClick={() => setSelectedThread(thread)}
+                aria-current={selectedThread.id === thread.id ? 'page' : undefined}
+              >
+                <span className="font-semibold text-md truncate">{thread.subject}</span>
+              </Button>
+            ))}
           </CardContent>
         </Card>
-      </motion.div>
-    </div>
-  )
+        {/* Main Message Thread */}
+        <Card className="col-span-2 bg-white shadow-md flex flex-col h-[500px]">
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <Lock className="w-4 h-4 text-[#1d4ed8]" />
+              <CardTitle className="text-[#1d4ed8] font-semibold font-['Roboto']">
+                {selectedThread.subject}
+              </CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="flex-1 overflow-y-auto px-2 py-1">
+            <div className="flex flex-col gap-4">
+              {selectedThread.messages.map((msg, idx) => (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, x: msg.sender === 'You' ? 60 : -60 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.25, delay: idx * 0.05 }}
+                  className={`flex ${msg.sender === 'You' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div
+                    className={`rounded-xl px-4 py-2 max-w-[70%] shadow-sm font-['Roboto'] text-sm ${
+                      msg.sender === 'You'
+                        ? 'bg-[#1d4ed8] text-white'
+                        : 'bg-slate-100 text-gray-800'
+                    }`}
+                  >
+                    <div className="mb-1 font-semibold">
+                      {msg.sender}
+                    </div>
+                    {msg.content}
+                    <div className="text-xs mt-1 opacity-60 text-right">
+                      {new Date(msg.date).toLocaleString()}
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </CardContent>
+          <CardFooter className="border-t pt-2 flex gap-2">
+            <Textarea
+              id="message-input"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="Type your secure message..."
+              rows={2}
+              className="flex-1 resize-none"
+            />
+            <Button id="send-message" onClick={handleSend} className="h-fit px-5 py-2 bg-[#1d4ed8] text-white font-bold" aria-label="Send Message">
+              <Send className="w-5 h-5" />
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
+    </motion.div>
+  );
 }
